@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { getScopeWhere, getEffectiveRole } from "@/lib/permissions";
 import { DashboardControls } from "@/components/dashboard/dashboard-controls";
 import { AiReportDialog } from "@/components/dashboard/ai-report-dialog";
+import { AiInsightsWidget } from "@/components/dashboard/ai-insights-widget";
 import { subMonths, startOfMonth, endOfMonth, format } from "date-fns";
 
 export const dynamic = "force-dynamic";
@@ -239,6 +240,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                     </Card>
                 </Link>
             </div>
+
+            {/* AI Insights — outputs of the AI Engine models across the workspace */}
+            <AiInsightsWidget />
 
             {/* Charts */}
             <div className="w-full overflow-hidden">

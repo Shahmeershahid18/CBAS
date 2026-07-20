@@ -27,10 +27,27 @@ export async function createActivity(data: {
             throw new Error("User not found");
         }
 
+        // Analyse the note's sentiment via the AI Engine. Best-effort: if the
+        // engine is down we still save the activity, just without a label.
+        let sentiment: string | null = null;
+        let sentimentScore: number | null = null;
+        if (data.notes && data.notes.trim().length > 0) {
+            try {
+                const { analyzeSentimentRemote } = await import("@/lib/ai/engine");
+                const res = await analyzeSentimentRemote(data.notes);
+                sentiment = res.sentiment;
+                sentimentScore = res.confidence;
+            } catch (e) {
+                console.error("Sentiment analysis skipped:", e);
+            }
+        }
+
         const newActivity = await prisma.activity.create({
             data: {
                 type: data.type,
                 notes: data.notes,
+                sentiment,
+                sentimentScore,
                 leadId: data.leadId || null,
                 dealId: data.dealId || null,
                 userId: user.id,

@@ -12,6 +12,8 @@
     "db:seed:workflows": "npx tsx seed.ts",
     "db:seed:demo": "npx tsx scripts/seed-demo.ts",
     "db:seed:erp": "npx tsx scripts/seed-erp-demo.ts",
+    "db:seed:ai": "npx tsx scripts/seed-ai-demo.ts",
+    "ai:export": "npx tsx scripts/export-ai-training.ts",
     "db:fix": "npx tsx scripts/fix-data-structure.ts"
   },
   "dependencies": {

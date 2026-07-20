@@ -64,12 +64,13 @@ function describeAction(name: string, args: any): string {
 }
 
 /**
- * Basic AI assistant for system navigation and data questions (per project
- * scope: an "advanced NLP chatbot" is explicitly out of scope). Real
- * workspace data is summarized into the prompt so answers are grounded in
- * what's actually in the database. It may also propose ONE of the two tools
- * above — but only ever proposes; the caller must call
- * confirmAssistantAction() to actually execute it.
+ * AI assistant for system navigation and data questions. Uses retrieval-
+ * augmented generation (Path B in the AI module plan): aggregate workspace
+ * metrics plus the specific CRM records most semantically relevant to the
+ * question (via the local embedding model in @/lib/ai/retrieval) are grounded
+ * into the prompt, so the model answers about real leads/contacts/deals rather
+ * than guessing. It may also propose ONE of the two tools above — but only ever
+ * proposes; the caller must call confirmAssistantAction() to actually execute it.
  */
 export async function askAssistant(message: string) {
     try {
@@ -97,7 +98,18 @@ export async function askAssistant(message: string) {
             ? `Team size: ${attendance.data.totalMembers}. Present today: ${attendance.data.presentToday}. Absent today: ${attendance.data.absentToday}. Flagged attendance anomalies: ${attendance.data.anomalies.length}.`
             : "Attendance data unavailable.";
 
-        const systemContext = `You are the built-in AI assistant for CoreAxis, a Business Automation System (BAS). Answer the user's question using ONLY the real workspace data summarized below. Be concise (2-4 sentences). If the question can't be answered from this data, say so plainly instead of guessing.
+        // RAG: retrieve the specific CRM records most relevant to the question so
+        // the assistant can answer about individual leads/contacts/deals, not just
+        // the aggregate counts. Best-effort — never let retrieval break a reply.
+        let retrieved = "";
+        try {
+            const { retrieveContext } = await import("@/lib/ai/retrieval");
+            retrieved = await retrieveContext(workspaceId, message, 6);
+        } catch (e) {
+            console.error("RAG retrieval skipped:", e);
+        }
+
+        const systemContext = `You are the built-in AI assistant for CoreAxis, a Business Automation System (BAS). Answer the user's question using ONLY the real workspace data below. Be concise (2-4 sentences). If the question can't be answered from this data, say so plainly instead of guessing.
 
 If — and only if — the user is clearly asking you to record/log/add something (an expense, or received stock), call the matching tool instead of replying in text. Otherwise, always reply in plain text. Never call a tool for a question that's just asking for information.
 
@@ -106,7 +118,8 @@ Workspace snapshot:
 - Finance: ${financeSummary}
 - Inventory: ${inventorySummary}
 - HR/Attendance: ${attendanceSummary}
-- Recruitment: ${candidateCount} candidates in the pipeline.`;
+- Recruitment: ${candidateCount} candidates in the pipeline.
+${retrieved ? `\nMost relevant records to this question (retrieved by semantic search):\n${retrieved}` : ""}`;
 
         const result = await askGemini(systemContext, message, TOOLS);
 

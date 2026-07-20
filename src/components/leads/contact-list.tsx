@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Search, Mail, Phone, Building2, MoreVertical, Trash2 } from "lucide-react";
+import { Search, Mail, Phone, Building2, MoreVertical, Trash2, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Select,
@@ -25,8 +25,10 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deleteContact } from "@/lib/actions/contacts";
+import { deleteContact, predictContactChurn, getContactRecommendations } from "@/lib/actions/contacts";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { ShoppingBag } from "lucide-react";
 
 import { EditContactDialog } from "./edit-contact-dialog";
 import { Edit, FilterX, Users } from "lucide-react";
@@ -48,6 +50,53 @@ export function ContactList({ data, organizations = [] }: ContactListProps) {
     // Edit Contact State
     const [activeContact, setActiveContact] = useState<any>(null);
     const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+    // Churn prediction state: latest results by contact id + which row is scoring.
+    const [churn, setChurn] = useState<Record<string, { band: string; score: number }>>({});
+    const [scoringId, setScoringId] = useState<string | null>(null);
+
+    // Recommendations dialog state.
+    const [recsOpen, setRecsOpen] = useState(false);
+    const [recsLoading, setRecsLoading] = useState(false);
+    const [recsContact, setRecsContact] = useState<any>(null);
+    const [recs, setRecs] = useState<{ items: any[]; personalized: boolean } | null>(null);
+
+    const handleRecommend = async (contact: any) => {
+        setRecsContact(contact);
+        setRecs(null);
+        setRecsOpen(true);
+        setRecsLoading(true);
+        const res = await getContactRecommendations(contact.id, 5);
+        if (res.success && res.data) setRecs(res.data);
+        else { toast.error(res.error || "Failed to get recommendations"); setRecsOpen(false); }
+        setRecsLoading(false);
+    };
+
+    const handlePredictChurn = async (contact: any) => {
+        setScoringId(contact.id);
+        const res = await predictContactChurn(contact.id);
+        if (res.success && res.data) {
+            setChurn((prev) => ({ ...prev, [contact.id]: { band: res.data.riskBand, score: res.data.riskScore } }));
+            toast.success(`${contact.firstName}: ${res.data.riskBand} churn risk (${res.data.riskScore}/100)`);
+        } else {
+            toast.error(res.error || "Failed to predict churn");
+        }
+        setScoringId(null);
+    };
+
+    const ChurnBadge = ({ contact }: { contact: any }) => {
+        const result = churn[contact.id] || (typeof contact.churnScore === "number"
+            ? { band: contact.churnBand as string, score: contact.churnScore as number } : null);
+        if (!result) return <span className="text-xs italic text-muted-foreground/50">Not scored</span>;
+        const cls = result.band === "High" ? "bg-red-500/10 text-red-600 dark:text-red-400 ring-red-500/20"
+            : result.band === "Medium" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-amber-500/20"
+            : "bg-green-500/10 text-green-600 dark:text-green-400 ring-green-500/20";
+        return (
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ring-1 ring-inset ${cls}`}>
+                {result.band} · {result.score}
+            </span>
+        );
+    };
 
     const filteredData = data.filter(contact => {
         const query = searchTerm.toLowerCase();
@@ -172,7 +221,21 @@ export function ContactList({ data, organizations = [] }: ContactListProps) {
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end" className="w-48 p-2 rounded-2xl shadow-2xl">
-                                        <DropdownMenuItem 
+                                        <DropdownMenuItem
+                                            className="gap-2 py-2.5 font-bold"
+                                            onClick={() => handlePredictChurn(contact)}
+                                        >
+                                            <Sparkles className="w-4 h-4" />
+                                            Predict Churn Risk
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            className="gap-2 py-2.5 font-bold"
+                                            onClick={() => handleRecommend(contact)}
+                                        >
+                                            <ShoppingBag className="w-4 h-4" />
+                                            Recommend Products
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
                                             className="gap-2 py-2.5 font-bold"
                                             onClick={() => {
                                                 setActiveContact(contact);
@@ -206,6 +269,12 @@ export function ContactList({ data, organizations = [] }: ContactListProps) {
                                     </div>
                                     <span>{contact.phone || "No phone number"}</span>
                                 </div>
+                                <div className="flex items-center gap-3 text-sm pt-1">
+                                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-tight">Churn</span>
+                                    {scoringId === contact.id
+                                        ? <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><Loader2 className="w-3.5 h-3.5 animate-spin" /> scoring…</span>
+                                        : <ChurnBadge contact={contact} />}
+                                </div>
                             </div>
                         </div>
                     ))
@@ -225,13 +294,14 @@ export function ContactList({ data, organizations = [] }: ContactListProps) {
                             <TableHead className="font-black uppercase tracking-wider text-[11px] h-12 px-5">Email</TableHead>
                             <TableHead className="font-black uppercase tracking-wider text-[11px] h-12 px-5">Phone</TableHead>
                             <TableHead className="font-black uppercase tracking-wider text-[11px] h-12 px-5">Organization</TableHead>
+                            <TableHead className="font-black uppercase tracking-wider text-[11px] h-12 px-5">Churn Risk</TableHead>
                             <TableHead className="w-[60px] h-12 px-5"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredData.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground font-medium">
+                                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground font-medium">
                                     No records found matching your search.
                                 </TableCell>
                             </TableRow>
@@ -259,6 +329,13 @@ export function ContactList({ data, organizations = [] }: ContactListProps) {
                                             {contact.organization?.name || <span className="italic opacity-50">None</span>}
                                         </div>
                                     </TableCell>
+                                    <TableCell className="px-5 py-3.5">
+                                        <div className="flex items-center gap-2">
+                                            {scoringId === contact.id
+                                                ? <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><Loader2 className="w-3.5 h-3.5 animate-spin" /> scoring…</span>
+                                                : <ChurnBadge contact={contact} />}
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="px-5 py-3.5 text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -267,7 +344,21 @@ export function ContactList({ data, organizations = [] }: ContactListProps) {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-48 p-2 rounded-xl border-border/60 shadow-xl">
-                                                <DropdownMenuItem 
+                                                <DropdownMenuItem
+                                                    className="gap-2 py-2 font-bold cursor-pointer"
+                                                    onClick={() => handlePredictChurn(contact)}
+                                                >
+                                                    <Sparkles className="w-4 h-4" />
+                                                    Predict Churn Risk
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
+                                                    className="gap-2 py-2 font-bold cursor-pointer"
+                                                    onClick={() => handleRecommend(contact)}
+                                                >
+                                                    <ShoppingBag className="w-4 h-4" />
+                                                    Recommend Products
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem
                                                     className="gap-2 py-2 font-bold cursor-pointer"
                                                     onClick={() => {
                                                         setActiveContact(contact);
@@ -294,12 +385,48 @@ export function ContactList({ data, organizations = [] }: ContactListProps) {
                 </Table>
             </div>
 
-            <EditContactDialog 
+            <EditContactDialog
                 open={editDialogOpen}
                 onOpenChange={setEditDialogOpen}
                 contact={activeContact}
                 organizations={organizations}
             />
+
+            {/* AI product recommendations (app-native collaborative-filtering model) */}
+            <Dialog open={recsOpen} onOpenChange={setRecsOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ShoppingBag className="h-5 w-5 text-primary" />
+                            Recommended for {recsContact?.firstName} {recsContact?.lastName}
+                        </DialogTitle>
+                        <DialogDescription>
+                            {recs
+                                ? recs.personalized
+                                    ? "Personalized from this customer's purchase history."
+                                    : "This customer has no orders yet — showing popular products."
+                                : "Asking the AI Engine…"}
+                        </DialogDescription>
+                    </DialogHeader>
+                    {recsLoading ? (
+                        <div className="flex items-center justify-center py-8 text-muted-foreground">
+                            <Loader2 className="h-5 w-5 animate-spin mr-2" /> Generating recommendations…
+                        </div>
+                    ) : (
+                        <ul className="divide-y divide-border/50">
+                            {recs?.items?.length ? recs.items.map((it, i) => (
+                                <li key={it.id ?? i} className="flex items-center justify-between py-2.5">
+                                    <span className="flex items-center gap-3">
+                                        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{i + 1}</span>
+                                        <span className="font-medium text-foreground">{it.name}</span>
+                                    </span>
+                                    {it.category && <span className="text-[11px] text-muted-foreground">{it.category}</span>}
+                                </li>
+                            )) : <li className="py-4 text-center text-sm text-muted-foreground">No recommendations available.</li>}
+                        </ul>
+                    )}
+                </DialogContent>
+            </Dialog>
 
             {/* Pagination Controls */}
             {/* Overhauled Responsive Pagination */}

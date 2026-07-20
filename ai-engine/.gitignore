@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Trained model artifacts (regenerate with `python -m training.lead_scoring`)
+artifacts/*.joblib
+artifacts/*.json
+artifacts/sentiment_bert/
+artifacts/_bert_ckpt/
+
+# Datasets (download from Kaggle — see training/README section)
+data/*.csv

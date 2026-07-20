@@ -1,0 +1,24 @@
+# CBAS AI Engine — Python dependencies
+# Serving
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+python-dotenv==1.0.1
+
+# ML / data
+numpy==2.1.3
+pandas==2.2.3
+scikit-learn==1.5.2
+xgboost==2.1.3
+joblib==1.4.2
+
+# Dataset download (optional — only needed for scripts/fetch_datasets.py)
+kaggle==1.6.17
+
+# Report figures (optional — only needed for scripts/make_figures.py)
+matplotlib==3.10.0
+
+# Optional DistilBERT sentiment upgrade (training/sentiment_bert.py). Heavy (~2GB);
+# install only if you want the transformer:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+#   pip install transformers==4.46.3 accelerate>=0.26.0

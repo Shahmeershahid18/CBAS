@@ -22,7 +22,13 @@ async function embed(text: string): Promise<Float32Array> {
     return output.data as Float32Array;
 }
 
-function cosineSimilarity(a: Float32Array, b: Float32Array): number {
+/** Public embedding helper — L2-normalized MiniLM sentence embedding. */
+export function embedText(text: string): Promise<Float32Array> {
+    return embed(text);
+}
+
+/** Cosine similarity of two (already L2-normalized) embedding vectors. */
+export function cosineSimilarity(a: Float32Array, b: Float32Array): number {
     let dot = 0;
     for (let i = 0; i < a.length; i++) dot += a[i] * b[i];
     // Vectors are already L2-normalized (normalize: true above), so the dot product IS the cosine similarity.

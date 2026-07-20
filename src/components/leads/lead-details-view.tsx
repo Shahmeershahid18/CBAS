@@ -2,10 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Building2, Clock, CheckCircle2, Phone, Mail, FileText, MapPin } from "lucide-react";
+import { Building2, Clock, CheckCircle2, Phone, Mail, FileText, MapPin, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { getLeadActivities, createActivity } from "@/lib/actions/activities";
+import { scoreLead } from "@/lib/actions/leads";
+import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { Lead } from "@/generated/prisma/client/client";
 
@@ -22,6 +24,24 @@ export function LeadDetailsView({
     const [note, setNote] = useState("");
     const [loading, setLoading] = useState(false);
     const [activitiesLoading, setActivitiesLoading] = useState(false);
+    const [scoring, setScoring] = useState(false);
+    const [aiScore, setAiScore] = useState<{ score: number; band: string; reason: string } | null>(
+        typeof (lead as any).aiScore === "number"
+            ? { score: (lead as any).aiScore, band: (lead as any).aiScoreBand || "", reason: (lead as any).aiScoreReason || "" }
+            : null
+    );
+
+    const handleScoreLead = async () => {
+        setScoring(true);
+        const res = await scoreLead(lead.id);
+        if (res.success && res.data) {
+            setAiScore({ score: res.data.score, band: res.data.band, reason: res.data.reason });
+            toast.success(`Scored ${res.data.score}/100 — ${res.data.band} lead`);
+        } else {
+            toast.error(res.error || "Failed to score lead");
+        }
+        setScoring(false);
+    };
 
     useEffect(() => {
         if (lead) {
@@ -69,6 +89,41 @@ export function LeadDetailsView({
                         )}
                     </div>
                 </div>
+
+                {/* AI Lead Score — powered by the CBAS AI Engine lead-scoring model */}
+                <div className="py-5 border-b border-border/50">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            {aiScore ? (
+                                <div className={`flex h-12 w-12 flex-col items-center justify-center rounded-lg font-bold ${
+                                    aiScore.band === "Hot" ? "bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20"
+                                    : aiScore.band === "Warm" ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20"
+                                    : "bg-slate-500/10 text-slate-600 dark:text-slate-400 ring-1 ring-slate-500/20"
+                                }`}>
+                                    <span className="text-lg leading-none">{aiScore.score}</span>
+                                    <span className="text-[8px] uppercase tracking-wide">/ 100</span>
+                                </div>
+                            ) : (
+                                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
+                                    <Sparkles className="h-5 w-5 text-primary" />
+                                </div>
+                            )}
+                            <div>
+                                <p className="text-sm font-semibold text-foreground">
+                                    AI Lead Score {aiScore && <span className="text-muted-foreground font-normal">· {aiScore.band}</span>}
+                                </p>
+                                <p className="text-xs text-muted-foreground max-w-md">
+                                    {aiScore ? aiScore.reason : "Predict this lead's conversion likelihood with the AI Engine."}
+                                </p>
+                            </div>
+                        </div>
+                        <Button size="sm" variant="outline" onClick={handleScoreLead} disabled={scoring}>
+                            {scoring ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                            <span className="ml-1.5">{aiScore ? "Re-score" : "Score"}</span>
+                        </Button>
+                    </div>
+                </div>
+
                 <div className="py-6 space-y-6">
                     <div className="space-y-2">
                         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Contact Details</h4>
@@ -217,6 +272,15 @@ export function LeadDetailsView({
                                     {activity.notes && (
                                         <div className="mt-2 text-sm text-foreground bg-muted border border-border p-2.5 rounded-md leading-relaxed whitespace-pre-wrap">
                                             {activity.notes}
+                                            {activity.sentiment && (
+                                                <span className={`ml-2 inline-flex items-center gap-1 align-middle rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                                                    activity.sentiment === "positive" ? "bg-green-500/10 text-green-600 dark:text-green-400 ring-1 ring-green-500/20"
+                                                    : activity.sentiment === "negative" ? "bg-red-500/10 text-red-600 dark:text-red-400 ring-1 ring-red-500/20"
+                                                    : "bg-slate-500/10 text-slate-600 dark:text-slate-400 ring-1 ring-slate-500/20"
+                                                }`} title={`AI sentiment${typeof activity.sentimentScore === "number" ? ` · ${Math.round(activity.sentimentScore * 100)}% confidence` : ""}`}>
+                                                    {activity.sentiment === "positive" ? "😊" : activity.sentiment === "negative" ? "😞" : "😐"} {activity.sentiment}
+                                                </span>
+                                            )}
                                         </div>
                                     )}
                                 </div>

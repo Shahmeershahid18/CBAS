@@ -103,6 +103,7 @@ model Workspace {
   candidates      Candidate[]
   products        Product[]
   stockMovements  StockMovement[]
+  orders          Order[]
 }
 
 model CustomRole {
@@ -198,6 +199,10 @@ model Lead {
   organizationId String?
   source         String        @default("MANUAL")
   workspaceId    String?
+  aiScore        Int?          // 0-100 conversion score from the AI Engine lead-scoring model
+  aiScoreBand    String?       // Hot / Warm / Cold
+  aiScoreReason  String?       // one-line rationale from the model
+  aiScoredAt     DateTime?     // when the lead was last scored
   activities     Activity[]
   createdBy      User?         @relation("LeadCreator", fields: [createdById], references: [id])
   organization   Organization? @relation(fields: [organizationId], references: [id])
@@ -220,7 +225,12 @@ model Contact {
   organizationId String?
   dealId         String?
   workspaceId    String?
+  churnScore     Int?          // 0-100 churn risk from the AI Engine churn model
+  churnBand      String?       // Low / Medium / High
+  churnReason    String?       // one-line rationale from the model
+  churnScoredAt  DateTime?     // when the customer was last scored
   activities     Activity[]
+  orders         Order[]
   deal           Deal?         @relation(fields: [dealId], references: [id])
   organization   Organization? @relation(fields: [organizationId], references: [id])
   owner          User?         @relation(fields: [ownerId], references: [id], onDelete: SetNull)
@@ -248,11 +258,13 @@ model Deal {
 }
 
 model Activity {
-  id          String     @id @default(cuid())
-  type        String
-  notes       String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id                 String     @id @default(cuid())
+  type               String
+  notes              String?
+  sentiment          String?    // positive / negative / neutral — from the AI Engine sentiment model
+  sentimentScore     Float?     // confidence 0-1
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
   userId      String
   leadId      String?
   contactId   String?
@@ -515,11 +527,38 @@ model Product {
 
   workspace      Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   stockMovements StockMovement[]
+  orderItems     OrderItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([workspaceId, sku])
+}
+
+// Customer purchases — the interaction data the recommender learns from.
+model Order {
+  id          String      @id @default(cuid())
+  contactId   String?
+  workspaceId String?
+  total       Float       @default(0)
+  createdAt   DateTime    @default(now())
+  contact     Contact?    @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  workspace   Workspace?  @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  items       OrderItem[]
+
+  @@index([workspaceId, contactId])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int     @default(1)
+  unitPrice Float   @default(0)
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 model StockMovement {

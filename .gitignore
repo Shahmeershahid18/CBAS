@@ -68,3 +68,23 @@ next-env.d.ts
 
 # Stray lint output
 eslint_errors.txt
+
+# ---- Python / AI Engine ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Trained models, datasets, and caches (regenerated via training scripts)
+/ai-engine/.venv/
+/ai-engine/artifacts/*.joblib
+/ai-engine/artifacts/*.json
+/ai-engine/artifacts/sentiment_bert/
+/ai-engine/artifacts/_bert_ckpt/
+/ai-engine/data/*.csv
+.cache/
+
+# Editor
+/.vscode/
+*.swp

@@ -102,7 +102,19 @@ async function main() {
     }
     console.log(`  ${deals.length} deals marked as ONBOARDED orders`);
 
-    console.log("\nDone. Finance Hub, Expenses, Invoices, and Orders now have data for the demo account.");
+    // --- Closed-Lost (archived deals) -------------------------------------
+    const lostDeals = await prisma.deal.findMany({
+        where: { workspaceId, stage: "LOST" }, take: 14, select: { id: true },
+    });
+    if (lostDeals.length) {
+        await prisma.deal.updateMany({
+            where: { id: { in: lostDeals.map((d) => d.id) } },
+            data: { customStage: "ARCHIVED" },
+        });
+    }
+    console.log(`  ${lostDeals.length} deals archived (Closed-Lost)`);
+
+    console.log("\nDone. Finance Hub, Expenses, Invoices, Orders, and Closed-Lost now have data for the demo account.");
 }
 
 main().catch((e) => { console.error(e); process.exit(1); }).finally(() => prisma.$disconnect());

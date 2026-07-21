@@ -46,7 +46,7 @@ export function LandingFooter() {
                     </div>
                 </div>
                 <div className="pt-8 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Core Axis. A DigiCare House Product.</p>
+                    <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} CBAS. A DigiCare House Product.</p>
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Lock className="w-3 h-3" /> SSL Secured · PBAC Enforced · SOC2-Ready Infrastructure
                     </div>

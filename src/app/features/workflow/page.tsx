@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Visual Workflow Engine",
-    description: "DigiXCrm's visual automation engine is currently being finalized. Next-generation sales scaling is arriving soon.",
+    description: "CBAS's visual automation engine is currently being finalized. Next-generation sales scaling is arriving soon.",
 };
 
 export default function WorkflowPage() {

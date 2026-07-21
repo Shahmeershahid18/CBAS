@@ -119,7 +119,7 @@ export function PricingTable({ onOpenModal }: PricingTableProps) {
                                 <p className="text-sm text-muted-foreground mb-6">Complete value breakdown</p>
                                 {pl.id === "ENTERPRISE" ? (
                                     <a 
-                                        href="mailto:Core Axis.sales@gmail.com?subject=Enterprise Inquiry: Core Axis"
+                                        href="mailto:CBAS.sales@gmail.com?subject=Enterprise Inquiry: CBAS"
                                         className={cn(
                                             "w-full py-3.5 rounded-xl text-sm font-bold transition-all hover:scale-[1.02] shadow-lg flex items-center justify-center bg-secondary text-secondary-foreground border border-border hover:bg-secondary/80"
                                         )}
@@ -185,7 +185,7 @@ export function PricingTable({ onOpenModal }: PricingTableProps) {
                             {/* Column Footer */}
                             <div className="p-6 pt-0 opacity-40 hover:opacity-100 transition-opacity">
                                 <p className="text-[10px] text-center text-muted-foreground leading-relaxed">
-                                    * {pl.name} tier configurations subject to Core Axis PBAC security standards.
+                                    * {pl.name} tier configurations subject to CBAS PBAC security standards.
                                 </p>
                             </div>
                         </div>

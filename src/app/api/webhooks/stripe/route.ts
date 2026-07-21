@@ -141,10 +141,10 @@ export async function POST(req: Request) {
 
                 await sendEmail({
                     to: customerEmail,
-                    subject: "Action Required: Complete your DigiXCrm setup",
+                    subject: "Action Required: Complete your CBAS setup",
                     html: `
                         <div style="font-family: Arial, sans-serif; padding: 25px; border: 1px solid #eaeaec; border-radius: 12px; max-width: 600px; margin: 0 auto;">
-                            <h2 style="color: #1e1b4b;">Welcome to DigiXCrm!</h2>
+                            <h2 style="color: #1e1b4b;">Welcome to CBAS!</h2>
                             <p>Thank you for your purchase of the <strong>${planTier}</strong> plan.</p>
                             <p>Click the button below to claim your workspace and complete your registration:</p>
                             <div style="margin: 30px 0;">

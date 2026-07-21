@@ -13,7 +13,7 @@ export function Hero({ onOpenModal }: HeroProps) {
     const [qrUrl, setQrUrl] = useState<string>("");
 
     useEffect(() => {
-        generateQR("https://Core Axis.com/mobile_app/Core Axis.apk").then(setQrUrl);
+        generateQR("https://CBAS.com/mobile_app/CBAS.apk").then(setQrUrl);
     }, []);
 
     return (
@@ -36,7 +36,7 @@ export function Hero({ onOpenModal }: HeroProps) {
                         </h1>
 
                         <p className="text-sm md:text-lg text-muted-foreground leading-relaxed mb-8 md:mb-10 max-w-md mx-auto lg:mx-0 text-balance">
-                            Stop losing leads in messy spreadsheets. Core Axis surfaces your{" "}
+                            Stop losing leads in messy spreadsheets. CBAS surfaces your{" "}
                             <strong className="text-foreground font-semibold">Next Best Action</strong>, keeping your sales team focused on closing, not organizing data.
                         </p>
 

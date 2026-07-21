@@ -5,20 +5,20 @@ import { Plus, Minus } from "lucide-react";
 
 const faqs = [
     {
-        q: "What makes Core Axis different from traditional CRMs?",
-        a: "Most CRMs are just fancy list managers. Core Axis is an 'Action-Oriented' platform that surfaces your next best action automatically, so your team spends more time closing and less time organizing data."
+        q: "What makes CBAS different from traditional CRMs?",
+        a: "Most CRMs are just fancy list managers. CBAS is an 'Action-Oriented' platform that surfaces your next best action automatically, so your team spends more time closing and less time organizing data."
     },
     {
-        q: "Does Core Axis support multi-tenant isolation?",
+        q: "Does CBAS support multi-tenant isolation?",
         a: "Yes. Our architecture is built for scale. You can create completely isolated workspaces for different branches, regions, or clients, each with its own dedicated database partition and security rules."
     },
     {
-        q: "How secure is my data in Core Axis?",
+        q: "How secure is my data in CBAS?",
         a: "We use PBAC (Policy Based Access Control) and enterprise-grade encryption. Every record is protected by granular permissions, and our infrastructure is built to be SOC2-ready and compliant with global sovereignty laws."
     },
     {
         q: "Can I collect payments directly through my CRM?",
-        a: "Absolutely. Core Axis integrates directly with Stripe and Square. You can connect your merchant account to any workspace and settle transactions, manage payouts, and track revenue right where you manage your leads."
+        a: "Absolutely. CBAS integrates directly with Stripe and Square. You can connect your merchant account to any workspace and settle transactions, manage payouts, and track revenue right where you manage your leads."
     },
     {
         q: "Is there a trial for the Professional and Starter plans?",

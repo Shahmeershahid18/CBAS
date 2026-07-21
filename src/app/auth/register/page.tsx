@@ -102,7 +102,7 @@ function RegisterContent() {
                     <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center group-hover:bg-indigo-600 transition-colors shadow-lg">
                         <Zap className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-extrabold text-lg text-zinc-900 dark:text-zinc-100 tracking-tight">DigiXCrm</span>
+                    <span className="font-extrabold text-lg text-zinc-900 dark:text-zinc-100 tracking-tight">CBAS</span>
                 </Link>
                 <div className="mr-6"><ThemeToggle /></div>
             </div>
@@ -114,7 +114,7 @@ function RegisterContent() {
             <div className="w-full max-w-md mt-12 sm:mt-0 relative z-10 perspective-1000">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight drop-shadow-sm">Start Your 14-Day Free Trial</h1>
-                    <p className="text-zinc-500 dark:text-zinc-400 font-medium mt-2 drop-shadow-sm">Experience the full power of DigiXCrm Enterprise.</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 font-medium mt-2 drop-shadow-sm">Experience the full power of CBAS Enterprise.</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border border-zinc-200/50 dark:border-white/10 rounded-[2rem] p-6 sm:p-8 shadow-2xl dark:shadow-none transition-all duration-300">

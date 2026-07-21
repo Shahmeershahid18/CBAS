@@ -60,12 +60,12 @@ export async function POST(req: Request) {
         const html = `
             <div style="font-family: 'Inter', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center; border: 1px solid #e5e7eb; border-radius: 16px; background-color: #ffffff;">
                 <div style="background-color: #1a3a8f; padding: 30px; border-radius: 12px 12px 0 0;">
-                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px;">DigiXCrm</h1>
+                    <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -1px;">CBAS</h1>
                 </div>
                 <div style="padding: 40px 20px;">
                     <h2 style="color: #111827; margin-top: 0; font-size: 20px; font-weight: 700;">Claim Your ${trialDescription}</h2>
                     <p style="color: #4b5563; font-size: 16px; line-height: 1.6; margin-bottom: 35px;">
-                        You requested to build a <span style="font-weight: bold; color: #1a3a8f;">${plan}</span> workspace on DigiXCrm. Click the secure link below to proceed with your fast onboarding!
+                        You requested to build a <span style="font-weight: bold; color: #1a3a8f;">${plan}</span> workspace on CBAS. Click the secure link below to proceed with your fast onboarding!
                     </p>
                     <a href="${registrationLink}" style="display: inline-block; background-color: #4f46e5; color: white; padding: 16px 32px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 16px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);">Secure Setup My Workspace</a>
                     <p style="color: #94a3b8; font-size: 13px; margin-top: 40px;">
@@ -73,15 +73,15 @@ export async function POST(req: Request) {
                     </p>
                 </div>
                 <div style="padding: 20px; border-top: 1px solid #f3f4f6; color: #94a3b8; font-size: 12px;">
-                    &copy; 2026 DigiXCrm Automation. Professional CRM Infrastructure.
-                    &copy; 2026 DigiXCrm Automation. Professional CRM Infrastructure.
+                    &copy; 2026 CBAS Automation. Professional CRM Infrastructure.
+                    &copy; 2026 CBAS Automation. Professional CRM Infrastructure.
                 </div>
             </div>
         `;
 
         await sendEmail({
             to: email,
-            subject: "Your DigiXCrm Access Link",
+            subject: "Your CBAS Access Link",
             html
         });
 

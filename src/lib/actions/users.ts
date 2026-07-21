@@ -223,7 +223,7 @@ export async function createUser(data: {
             ? workspaceAssignments[0].workspaceId
             : null;
 
-        let workspaceName = "DigiXCrm";
+        let workspaceName = "CBAS";
         let workspaceLogo = null;
         
         if (firstWorkspaceId) {
@@ -249,7 +249,7 @@ export async function createUser(data: {
                 </div>
                 <p style="font-size: 15px; color: #333;">Hello,</p>
                 <p style="font-size: 15px; color: #333; line-height: 1.6;">
-                    You have been invited by an Administrator to join the <strong>${workspaceName}</strong> workspace on DigiXCrm. You have been assigned the role of <strong>${newUser.role}</strong>.
+                    You have been invited by an Administrator to join the <strong>${workspaceName}</strong> workspace on CBAS. You have been assigned the role of <strong>${newUser.role}</strong>.
                 </p>
                 <p style="font-size: 15px; color: #333; line-height: 1.6;">
                     Please click the button below to set up your account and gain access to the system.
@@ -260,7 +260,7 @@ export async function createUser(data: {
                 <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
                 <p style="color: #777; font-size: 12px; text-align: center;">
                     If you did not expect this invitation, you can simply ignore this email.<br>
-                    © ${new Date().getFullYear()} ${workspaceName} Powered by DigiXCrm
+                    © ${new Date().getFullYear()} ${workspaceName} Powered by CBAS
                 </p>
             </div>
         `;
@@ -451,7 +451,7 @@ export async function requestPasswordReset(email: string) {
         const baseUrl = appUrl.endsWith('/') ? appUrl.slice(0, -1) : appUrl;
         const resetUrl = `${baseUrl}/auth/reset-password?email=${encodeURIComponent(email)}&token=${token}`;
 
-        const workspaceName = (targetUser as any).activeWorkspace?.name || "DigiXCrm";
+        const workspaceName = (targetUser as any).activeWorkspace?.name || "CBAS";
         const workspaceLogo = (targetUser as any).activeWorkspace?.logo || null;
 
         const html = `
@@ -466,7 +466,7 @@ export async function requestPasswordReset(email: string) {
                 </div>
                 <p style="color: #777; font-size: 12px;">If you didn't request this, you can safely ignore this email.</p>
                 <hr style="border: none; border-top: 1px solid #eaeaea; margin: 20px 0;" />
-                <p style="color: #999; font-size: 10px; text-align: center;">Powered by DigiXCrm</p>
+                <p style="color: #999; font-size: 10px; text-align: center;">Powered by CBAS</p>
             </div>
         `;
 

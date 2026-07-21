@@ -71,7 +71,7 @@ export default async function DashboardLayout({
                         <div>
                             <h1 className="text-3xl font-black tracking-tight text-foreground">Account Suspended</h1>
                             <p className="text-muted-foreground mt-3 leading-relaxed">
-                                Your organization's access to DigiXCrm has been suspended by the platform administrator. 
+                                Your organization's access to CBAS has been suspended by the platform administrator. 
                                 Please contact support to resolve this.
                             </p>
                         </div>
@@ -143,7 +143,7 @@ export default async function DashboardLayout({
                 )}
                 <TopBar 
                     user={{ name: user.name || "User", role: effectiveRole, email: user.email as string, isMaster }} 
-                    workspace={{ name: currentWorkspace?.name || "DigiXCrm", logo: currentWorkspace?.logo || null }}
+                    workspace={{ name: currentWorkspace?.name || "CBAS", logo: currentWorkspace?.logo || null }}
                     role={effectiveRole}
                     workspaces={workspaces}
                     activeWorkspaceId={activeWorkspaceId}

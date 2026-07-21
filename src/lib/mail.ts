@@ -8,7 +8,7 @@ import nodemailer from "nodemailer";
  * EMAIL_SERVER_PORT=587
  * EMAIL_SERVER_USER=your_professional_id@service.com
  * EMAIL_SERVER_PASSWORD=your_api_key_or_password
- * EMAIL_FROM="DigiXCrm <noreply@yourdomain.com>"
+ * EMAIL_FROM="CBAS <noreply@yourdomain.com>"
  */
 
 import { prisma } from "@/lib/prisma";
@@ -33,7 +33,7 @@ interface SendEmailParams {
 
 export async function sendEmail({ to, subject, html, text, workspaceId }: SendEmailParams) {
   let activeTransporter = systemTransporter;
-  let fromEmail = process.env.EMAIL_FROM || '"DigiXCrm" <noreply@crm.com>';
+  let fromEmail = process.env.EMAIL_FROM || '"CBAS" <noreply@crm.com>';
 
   // DYNAMIC SMTP ROUTING: Use workspace SMTP if it exists and is active
   if (workspaceId) {

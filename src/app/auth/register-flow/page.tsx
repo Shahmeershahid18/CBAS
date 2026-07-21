@@ -145,7 +145,7 @@ function RegistrationFlowContent() {
     // Step 1: Personal or Organization
     const renderStep1 = () => (
         <div className="animate-in fade-in slide-in-from-right-8 duration-500 space-y-6">
-            <h2 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight mb-2">How will you use DigiXCrm?</h2>
+            <h2 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight mb-2">How will you use CBAS?</h2>
             <p className="text-zinc-500 font-medium mb-8">We'll tailor your workspace interface strictly based on your operational scale.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -204,7 +204,7 @@ function RegistrationFlowContent() {
     const renderStep3 = () => (
         <div className="animate-in fade-in slide-in-from-right-8 duration-500 space-y-6">
             <button onClick={prevStep} className="flex items-center gap-2 text-sm font-bold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition-colors mb-4"><ArrowLeft className="w-4 h-4" /> Back</button>
-            <h2 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight mb-2">How did you discover DigiXCrm?</h2>
+            <h2 className="text-3xl font-black text-zinc-900 dark:text-white tracking-tight mb-2">How did you discover CBAS?</h2>
             <p className="text-zinc-500 font-medium mb-8">We are actively expanding and love to know what Marketing Channels work best.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -319,7 +319,7 @@ function RegistrationFlowContent() {
                     <div className="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center shadow-lg">
                         <Zap className="w-4 h-4 text-white" />
                     </div>
-                    <span className="font-extrabold text-lg text-zinc-900 dark:text-zinc-100 tracking-tight">DigiXCrm</span>
+                    <span className="font-extrabold text-lg text-zinc-900 dark:text-zinc-100 tracking-tight">CBAS</span>
                 </Link>
                 <div className="mr-6"><ThemeToggle /></div>
             </div>

@@ -63,7 +63,7 @@ export function ComingSoon({ title, description }: ComingSoonProps) {
                             className="inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background font-bold rounded-2xl hover:bg-foreground/90 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-black/10"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Return to DigiXCrm
+                            Return to CBAS
                         </Link>
                     </div>
                 </div>

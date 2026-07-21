@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Terms of Service",
-    description: "DigiXCrm legal frameworks are being finalized for Enterprise compliance. Professional Terms of Service arriving soon.",
+    description: "CBAS legal frameworks are being finalized for Enterprise compliance. Professional Terms of Service arriving soon.",
 };
 
 export default function TermsPage() {

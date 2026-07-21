@@ -208,7 +208,7 @@ export async function askAssistant(message: string, tagged: TaggedRef[] = []) {
             taggedBlock = blocks.filter(Boolean).join("\n\n");
         }
 
-        const systemContext = `You are the built-in AI assistant for CoreAxis, a Business Automation System (BAS). Answer the user's question using ONLY the real workspace data below. If the question can't be answered from this data, say so plainly instead of guessing. Keep general answers to 2-4 sentences; for advice about a tagged record you may use up to 6 short sentences.
+        const systemContext = `You are the built-in AI assistant for CBAS, a Business Automation System (BAS). Answer the user's question using ONLY the real workspace data below. If the question can't be answered from this data, say so plainly instead of guessing. Keep general answers to 2-4 sentences; for advice about a tagged record you may use up to 6 short sentences.
 
 Write in plain conversational sentences. Do NOT use any markdown formatting — no **bold**, no asterisks, no headings, no bullet points.
 

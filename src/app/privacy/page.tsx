@@ -3,7 +3,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
     title: "Privacy Policy",
-    description: "DigiXCrm privacy standards are being mapped for SOC2 and GDPR compliance. Data sovereignty documentation arriving soon.",
+    description: "CBAS privacy standards are being mapped for SOC2 and GDPR compliance. Data sovereignty documentation arriving soon.",
 };
 
 export default function PrivacyPage() {

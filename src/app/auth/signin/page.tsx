@@ -22,7 +22,7 @@ export default function SignInPage() {
     useEffect(() => {
         if (typeof window !== "undefined") {
             const userAgent = window.navigator.userAgent;
-            if (userAgent.includes("DigiXCrm-Capacitor-Mobile")) {
+            if (userAgent.includes("CBAS-Capacitor-Mobile")) {
                 setIsMobile(true);
             }
         }
@@ -143,7 +143,7 @@ export default function SignInPage() {
                             Welcome Back
                         </h1>
                         <p className="text-muted-foreground text-[13px] sm:text-sm font-medium leading-relaxed">
-                            Log in to <span className="text-primary font-bold">DigiXCrm</span> to manage your leads and sales.
+                            Log in to <span className="text-primary font-bold">CBAS</span> to manage your leads and sales.
                         </p>
                     </div>
 
@@ -274,7 +274,7 @@ export default function SignInPage() {
                         className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/5 dark:bg-black/5 backdrop-blur-md border border-white/10 dark:border-black/10 hover:bg-white/10 dark:hover:bg-black/10 hover:shadow-[0_8px_32px_rgba(13,27,75,0.2)] transition-all duration-300 group hover:-translate-y-0.5"
                     >
                         <span className="text-sm font-semibold text-white/80 dark:text-zinc-600 group-hover:text-white dark:group-hover:text-zinc-900 transition-colors tracking-wide">
-                            Powered by <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500 dark:from-primary dark:to-blue-700 font-black ml-1">DigiXCrm Automation</span>
+                            Powered by <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-500 dark:from-primary dark:to-blue-700 font-black ml-1">CBAS Automation</span>
                         </span>
                         <ArrowRight className="w-4 h-4 text-cyan-400 dark:text-cyan-600 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
                     </a>

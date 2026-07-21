@@ -101,7 +101,7 @@ function SetupContent() {
                     </div>
                     <h1 className="text-3xl font-bold text-foreground tracking-tight">Complete Setup</h1>
                     <p className="text-muted-foreground mt-2 text-sm">
-                        Welcome to DigiXCrm! Please set your name and secure password to continue.
+                        Welcome to CBAS! Please set your name and secure password to continue.
                     </p>
                 </div>
 

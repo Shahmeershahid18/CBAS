@@ -42,7 +42,7 @@ export function DownloadClient() {
                             </div>
                             
                             <h1 className="text-4xl sm:text-6xl font-black leading-[1.1] tracking-tight mb-6">
-                                DigiXCrm for <span className="text-primary">Android.</span>
+                                CBAS for <span className="text-primary">Android.</span>
                             </h1>
                             
                             <p className="text-lg text-muted-foreground leading-relaxed mb-10 max-w-lg">
@@ -169,7 +169,7 @@ export function DownloadClient() {
                     <div className="max-w-4xl mx-auto px-6">
                         <div className="text-center mb-16">
                             <h2 className="text-3xl font-black tracking-tight mb-4">Installation Guide</h2>
-                            <p className="text-muted-foreground">Since this is a direct APK bundle, please follow these steps to securely install DigiXCrm on your Android device.</p>
+                            <p className="text-muted-foreground">Since this is a direct APK bundle, please follow these steps to securely install CBAS on your Android device.</p>
                         </div>
 
                         <div className="space-y-4">
@@ -177,7 +177,7 @@ export function DownloadClient() {
                                 { t: "Download the APK", d: "Click the primary download button above to save 'digixcrm.apk' to your device downloads." },
                                 { t: "Enable Unknown Sources", d: "Open Settings > Security/Privacy and toggle 'Allow installation from unknown sources' for your browser." },
                                 { t: "Open and Install", d: "Locate the file in your notifications or File Manager and tap to begin the secure installation process." },
-                                { t: "Launch & Login", d: "Open the DigiXCrm icon on your home screen and sign in with your enterprise credentials." }
+                                { t: "Launch & Login", d: "Open the CBAS icon on your home screen and sign in with your enterprise credentials." }
                             ].map((step, i) => (
                                 <div key={i} className="flex gap-6 p-6 bg-card border border-border rounded-2xl group hover:border-primary/30 transition-colors">
                                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center font-black text-primary shrink-0">

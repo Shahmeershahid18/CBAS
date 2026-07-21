@@ -117,12 +117,12 @@ export async function testSmtpConnection(config: {
              await transporter.sendMail({
                 from: config.from,
                 to: config.user, // Send to themselves
-                subject: "✨ DigiXCrm SMTP Test: Connection Verified",
-                text: "Success! Your custom SMTP connection has been verified. You can now use your professional domain to send automated client communications from DigiXCrm.",
+                subject: "✨ CBAS SMTP Test: Connection Verified",
+                text: "Success! Your custom SMTP connection has been verified. You can now use your professional domain to send automated client communications from CBAS.",
                 html: `
                     <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #eaeaec; border-radius: 12px; max-width: 500px;">
                         <h2 style="color: #1e1b4b;">Connection Verified!</h2>
-                        <p>This is a test email from your custom SMTP server configured in <strong>DigiXCrm</strong>.</p>
+                        <p>This is a test email from your custom SMTP server configured in <strong>CBAS</strong>.</p>
                         <p>Your server is correctly communicating with our platform.</p>
                         <div style="margin-top: 20px; font-size: 12px; color: #777;">
                             Sending as: ${config.from}

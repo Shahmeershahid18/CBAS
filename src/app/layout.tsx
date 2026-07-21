@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://coreaxis.com"),
+  metadataBase: new URL("https://digixworkspace.com"),
   alternates: {
-    canonical: "https://coreaxis.com",
+    canonical: "https://digixworkspace.com",
   },
   title: {
-    default: "Core Axis | The Action-Oriented AI CRM for High-Velocity Teams",
-    template: "%s | Core Axis"
+    default: "CBAS | The Action-Oriented AI CRM for High-Velocity Teams",
+    template: "%s | CBAS"
   },
   description: "Experience the most robust, action-oriented AI CRM for enterprise sales. Secure multi-tenant architecture with PBAC, built-in payments, and predictive lead insights for high-velocity teams.",
   keywords: [
@@ -37,22 +37,22 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://coreaxis.com",
-    title: "Core Axis | Future-Proof Your Sales Infrastructure",
+    url: "https://digixworkspace.com",
+    title: "CBAS | Future-Proof Your Sales Infrastructure",
     description: "Stop managing leads, start closing deals. Enterprise-grade AI CRM with workflow automation and multi-tenant security.",
-    siteName: "Core Axis",
+    siteName: "CBAS",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Core Axis - Advanced AI CRM for Enterprise",
+        alt: "CBAS - Advanced AI CRM for Enterprise",
       }
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Core Axis | Enterprise Scalable AI CRM",
+    title: "CBAS | Enterprise Scalable AI CRM",
     description: "Multi-tenant, PBAC-secured, and action-oriented sales automation for power teams.",
     images: ["/og-image.png"],
   },
@@ -83,7 +83,7 @@ const jsonLd = {
   "@graph": [
     {
       "@type": "SoftwareApplication",
-      "name": "Core Axis",
+      "name": "CBAS",
       "operatingSystem": "Web-based",
       "applicationCategory": "BusinessApplication",
       "offers": { "@type": "Offer", "price": "49.00", "priceCurrency": "USD" },
@@ -91,21 +91,21 @@ const jsonLd = {
     },
     {
       "@type": "Organization",
-      "name": "Core Axis",
-      "url": "https://coreaxis.com",
-      "logo": "https://coreaxis.com/icon.svg",
+      "name": "CBAS",
+      "url": "https://digixworkspace.com",
+      "logo": "https://digixworkspace.com/icon.svg",
       "sameAs": [
-        "https://twitter.com/coreaxis",
-        "https://linkedin.com/company/coreaxis"
+        "https://twitter.com/cbas",
+        "https://linkedin.com/company/cbas"
       ]
     },
     {
       "@type": "WebSite",
-      "name": "Core Axis",
-      "url": "https://coreaxis.com",
+      "name": "CBAS",
+      "url": "https://digixworkspace.com",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://coreaxis.com/search?q={search_term_string}",
+        "target": "https://digixworkspace.com/search?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     }
@@ -117,11 +117,11 @@ const navigationJsonLd = {
   "@type": "ItemList",
   "name": "Platform Navigation",
   "itemListElement": [
-    { "@type": "SiteNavigationElement", "position": 1, "name": "Features", "url": "https://coreaxis.com/features" },
-    { "@type": "SiteNavigationElement", "position": 2, "name": "Pricing", "url": "https://coreaxis.com/pricing" },
-    { "@type": "SiteNavigationElement", "position": 3, "name": "Workflow Engine", "url": "https://coreaxis.com/features/workflow" },
-    { "@type": "SiteNavigationElement", "position": 4, "name": "API Docs", "url": "https://coreaxis.com/docs" },
-    { "@type": "SiteNavigationElement", "position": 5, "name": "Login", "url": "https://coreaxis.com/auth/signin" }
+    { "@type": "SiteNavigationElement", "position": 1, "name": "Features", "url": "https://digixworkspace.com/features" },
+    { "@type": "SiteNavigationElement", "position": 2, "name": "Pricing", "url": "https://digixworkspace.com/pricing" },
+    { "@type": "SiteNavigationElement", "position": 3, "name": "Workflow Engine", "url": "https://digixworkspace.com/features/workflow" },
+    { "@type": "SiteNavigationElement", "position": 4, "name": "API Docs", "url": "https://digixworkspace.com/docs" },
+    { "@type": "SiteNavigationElement", "position": 5, "name": "Login", "url": "https://digixworkspace.com/auth/signin" }
   ]
 };
 
@@ -131,15 +131,15 @@ const faqJsonLd = {
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What makes Core Axis different from traditional CRMs?",
+      "name": "What makes CBAS different from traditional CRMs?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Core Axis is an 'Action-Oriented' platform that surfaces your next best action automatically, focusing teams on closing deals rather than organizing data."
+        "text": "CBAS is an 'Action-Oriented' platform that surfaces your next best action automatically, focusing teams on closing deals rather than organizing data."
       }
     },
     {
       "@type": "Question",
-      "name": "Does Core Axis support multi-tenant isolation?",
+      "name": "Does CBAS support multi-tenant isolation?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Yes. Our architecture allows for completely isolated workspaces, providing data sovereignty and enterprise-grade security for teams of any size."
@@ -150,7 +150,7 @@ const faqJsonLd = {
       "name": "Can I automate my manual sales workflows?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Absolutely. Core Axis features a robust no-code workflow engine that allows you to automate lead routing, task assignments, and follow-up notifications."
+        "text": "Absolutely. CBAS features a robust no-code workflow engine that allows you to automate lead routing, task assignments, and follow-up notifications."
       }
     },
     {
@@ -158,7 +158,7 @@ const faqJsonLd = {
       "name": "Is there an AI feature for lead reporting?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, Core Axis includes AI-powered reporting tools that analyze your sales pipeline to provide predictive insights and high-velocity focus areas."
+        "text": "Yes, CBAS includes AI-powered reporting tools that analyze your sales pipeline to provide predictive insights and high-velocity focus areas."
       }
     }
   ]
@@ -190,15 +190,15 @@ export default function RootLayout({
             "@context": "https://schema.org",
             "@type": "BreadcrumbList",
             "itemListElement": [
-              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://coreaxis.com" },
-              { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://coreaxis.com/features" },
-              { "@type": "ListItem", "position": 3, "name": "Pricing", "item": "https://coreaxis.com/pricing" }
+              { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://digixworkspace.com" },
+              { "@type": "ListItem", "position": 2, "name": "Features", "item": "https://digixworkspace.com/features" },
+              { "@type": "ListItem", "position": 3, "name": "Pricing", "item": "https://digixworkspace.com/pricing" }
             ]
           }) }}
         />
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
-            if (navigator.userAgent.indexOf('Core Axis-Capacitor-Mobile') !== -1) {
+            if (navigator.userAgent.indexOf('CBAS-Capacitor-Mobile') !== -1) {
               document.documentElement.classList.add('is-mobile-app');
             }
           })();

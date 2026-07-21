@@ -63,7 +63,7 @@ export async function createNotification(options: NotificationOptions) {
                         </div>` : ""}
                         <hr style="margin-top: 25px; border: 0; border-top: 1px solid #eaeaec;" />
                         <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">
-                            Automated notification from <strong>DigiXCrm</strong>.
+                            Automated notification from <strong>CBAS</strong>.
                         </p>
                     </div>
                 `,

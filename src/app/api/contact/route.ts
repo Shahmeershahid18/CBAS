@@ -27,14 +27,14 @@ export async function POST(req: NextRequest) {
         });
 
         await transporter.sendMail({
-            from: process.env.EMAIL_FROM || `"DigiXCrm" <noreply@digixcrm.com>`,
+            from: process.env.EMAIL_FROM || `"CBAS" <noreply@digixcrm.com>`,
             to: "digicarehouse.sales@gmail.com",
             replyTo: email,
-            subject: `🚀 New Lead from DigiXCrm: ${name}`,
+            subject: `🚀 New Lead from CBAS: ${name}`,
             html: `
                 <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; border-radius: 16px; overflow: hidden;">
                     <div style="background: linear-gradient(135deg, #312e81, #1e3a8a); padding: 32px; text-align: center;">
-                        <h1 style="color: white; font-size: 24px; margin: 0; font-weight: 900; letter-spacing: -0.5px;">DigiXCrm</h1>
+                        <h1 style="color: white; font-size: 24px; margin: 0; font-weight: 900; letter-spacing: -0.5px;">CBAS</h1>
                         <p style="color: #a5b4fc; margin: 8px 0 0; font-size: 14px;">New Sales Inquiry</p>
                     </div>
                     <div style="padding: 32px;">
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
                         </table>
                     </div>
                     <div style="background: #0f172a; border-top: 1px solid #1e293b; padding: 20px 32px; text-align: center;">
-                        <p style="color: #475569; font-size: 12px; margin: 0;">DigiXCrm — A DigiCare House Product</p>
+                        <p style="color: #475569; font-size: 12px; margin: 0;">CBAS — A DigiCare House Product</p>
                     </div>
                 </div>
             `,

@@ -88,3 +88,6 @@ venv/
 # Editor
 /.vscode/
 *.swp
+
+# Old project kept only for rebrand reference — do not commit/deploy
+CBAS-old/

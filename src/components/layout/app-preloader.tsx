@@ -9,7 +9,7 @@ export function AppPreloader() {
     useEffect(() => {
         // Detect if we are running inside the Capacitor Mobile App
         const userAgent = typeof window !== "undefined" ? window.navigator.userAgent : "";
-        const isMobileApp = userAgent.includes("DigiXCrm-Capacitor-Mobile");
+        const isMobileApp = userAgent.includes("CBAS-Capacitor-Mobile");
 
         if (isMobileApp) {
             setIsVisible(true);

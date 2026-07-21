@@ -29,7 +29,7 @@ export function ActionStreamPreview() {
                     <span className="w-2.5 h-2.5 rounded-full bg-green-400/70" />
                     <div className="ml-3 flex-1 bg-background/60 border border-border rounded px-2 py-0.5 flex items-center gap-1">
                         <Lock className="w-2.5 h-2.5 text-muted-foreground" />
-                        <span className="text-[9px] font-mono text-muted-foreground">app.Core Axis.com/action-stream</span>
+                        <span className="text-[9px] font-mono text-muted-foreground">app.CBAS.com/action-stream</span>
                     </div>
                 </div>
 

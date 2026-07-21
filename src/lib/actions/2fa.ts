@@ -11,7 +11,7 @@ export async function generate2FA() {
         const session = await getServerSession(authOptions);
         if (!session?.user?.email) return { success: false, error: "Unauthorized" };
 
-        const newSecret = twofactor.generateSecret({ name: "DigiXCrm", account: session.user.email });
+        const newSecret = twofactor.generateSecret({ name: "CBAS", account: session.user.email });
         const secretStr = newSecret.secret;
         
         await prisma.user.update({

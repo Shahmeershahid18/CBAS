@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 export default withAuth(
   function middleware(request: NextRequest) {
     const userAgent = request.headers.get("user-agent") || "";
-    const isMobileApp = userAgent.includes("DigiXCrm-Capacitor-Mobile");
+    const isMobileApp = userAgent.includes("CBAS-Capacitor-Mobile");
     const { pathname } = request.nextUrl;
 
     // 1. Force redirect from landing page (/) strictly for the mobile app

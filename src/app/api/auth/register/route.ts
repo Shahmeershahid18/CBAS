@@ -140,7 +140,7 @@ export async function POST(req: Request) {
         try {
             await sendEmail({
                 to: "digicarehouse.sales@gmail.com",
-                subject: `[NEW SIGNUP] ${companyName} - DigiXCrm Onboarding`,
+                subject: `[NEW SIGNUP] ${companyName} - CBAS Onboarding`,
                 html: `
                     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e5e7eb; border-radius: 12px;">
                         <h2 style="color: #1a3a8f; margin-bottom: 20px;">New Organization Created</h2>
@@ -166,7 +166,7 @@ export async function POST(req: Request) {
                             </tr>
                         </table>
                         <p style="margin-top: 30px; font-size: 14px; color: #6b7280; text-align: center;">
-                            &copy; 2026 DigiXCrm Sales Intelligence
+                            &copy; 2026 CBAS Sales Intelligence
                         </p>
                     </div>
                 `

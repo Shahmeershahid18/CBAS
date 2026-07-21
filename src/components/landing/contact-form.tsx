@@ -42,7 +42,7 @@ export function ContactForm() {
                         <div className="space-y-3 max-w-md mx-auto lg:mx-0">
                             {[
                                 { icon: Mail,   label: "Sales Email",  value: "digicarehouse.sales@gmail.com" },
-                                { icon: Globe,  label: "Website",      value: "Core Axis.com" },
+                                { icon: Globe,  label: "Website",      value: "CBAS.com" },
                                 { icon: Shield, label: "Security",     value: "SOC2-Ready Infrastructure" },
                             ].map((item) => (
                                 <div key={item.label} className="flex items-center gap-3 p-3.5 rounded-xl border border-border bg-card text-left">

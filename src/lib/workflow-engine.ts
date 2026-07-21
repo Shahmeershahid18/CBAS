@@ -127,14 +127,14 @@ async function runAction(rule: any, entity: any) {
                         }
 
                         await transporter.sendMail({
-                            from: process.env.EMAIL_FROM || "DigiXCrm Automations <noreply@digixcrm.com>",
+                            from: process.env.EMAIL_FROM || "CBAS Automations <noreply@digixcrm.com>",
                             to: targetEmail,
                             subject: parsedVal?.subject || "Automated Notification",
                             html: `
                                 <div style="font-family: sans-serif; padding: 20px;">
                                     <p>${formattedBody.replace(/\n/g, "<br/>")}</p>
                                     <hr style="margin-top: 20px; border: 0; border-top: 1px solid #eee;" />
-                                    <p style="font-size: 12px; color: #999;">Automated by DigiXCrm Automation</p>
+                                    <p style="font-size: 12px; color: #999;">Automated by CBAS Automation</p>
                                 </div>
                             `
                         });

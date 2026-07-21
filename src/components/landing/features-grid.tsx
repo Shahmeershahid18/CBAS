@@ -19,7 +19,7 @@ export function FeaturesGrid() {
                     <p className="text-[10px] md:text-xs font-semibold text-primary uppercase tracking-widest mb-3">Enterprise Capabilities</p>
                     <h2 className="text-3xl md:text-4xl font-black text-foreground tracking-tight mb-4 leading-[1.2]">A Global Operating System for Sales.</h2>
                     <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto">
-                        Core Axis is a robust infrastructure designed for high-velocity teams demanding security and speed.
+                        CBAS is a robust infrastructure designed for high-velocity teams demanding security and speed.
                     </p>
                 </div>
 

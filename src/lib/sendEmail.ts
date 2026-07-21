@@ -12,7 +12,7 @@ export async function sendEmail({ to, subject, html }: { to: string, subject: st
     });
 
     return await transporter.sendMail({
-        from: process.env.EMAIL_FROM || "DigiXCrm <noreply@digixcrm.com>",
+        from: process.env.EMAIL_FROM || "CBAS <noreply@digixcrm.com>",
         to,
         subject,
         html

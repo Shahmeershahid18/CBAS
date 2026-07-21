@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Loader2, Sparkles, Zap, Check, XCircle } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Sparkles, Zap, Check, XCircle, Tag, AtSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { askAssistant, confirmAssistantAction } from "@/lib/actions/chatbot";
+import { askAssistant, confirmAssistantAction, searchTaggables, type TaggedRef } from "@/lib/actions/chatbot";
 import { cn } from "@/lib/utils";
 
 interface PendingAction {
@@ -16,38 +16,87 @@ interface PendingAction {
 interface ChatMessage {
   role: "user" | "assistant";
   text?: string;
+  tags?: string[];
   pendingAction?: PendingAction;
   actionState?: "pending" | "confirmed" | "cancelled";
 }
 
+interface Taggable { type: string; id: string; label: string; sub: string }
+
+// Strip any markdown the model might still emit, so bubbles never show literal
+// **asterisks**, # headings, or - bullets.
+const cleanText = (t?: string) =>
+  (t || "")
+    .replace(/\*\*(.*?)\*\*/g, "$1")
+    .replace(/(^|\s)\*(?!\s)(.*?)\*/g, "$1$2")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*]\s+/gm, "• ");
+
 const SUGGESTED_QUESTIONS = [
   "What's our sales pipeline look like?",
-  "Any inventory items that need reordering?",
   "How's this month's finance forecast?",
-  "Log a $200 travel expense for today",
+  "Type @ and pick a lead — then ask how to pitch them",
 ];
 
 export function ChatbotWidget() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
-    { role: "assistant", text: "Hi! I'm your BAS assistant. Ask me about sales, finance, inventory, HR, or recruitment — or ask me to log an expense or receive stock, and I'll confirm before doing anything." },
+    { role: "assistant", text: "Hi! I'm your BAS assistant. Ask about sales, finance, inventory, HR — or type @ to tag a lead/customer and ask how to pitch or handle them." },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirming, setConfirming] = useState<number | null>(null);
+
+  // @-mention state
+  const [tagged, setTagged] = useState<Taggable[]>([]);
+  const [mentionQuery, setMentionQuery] = useState<string | null>(null);
+  const [mentionResults, setMentionResults] = useState<Taggable[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, open]);
 
+  // Search as the user types "@name"
+  useEffect(() => {
+    if (mentionQuery === null) return;
+    let active = true;
+    const t = setTimeout(async () => {
+      const res = await searchTaggables(mentionQuery);
+      if (active && res.success) setMentionResults((res.results as Taggable[]) || []);
+    }, 150);
+    return () => { active = false; clearTimeout(t); };
+  }, [mentionQuery]);
+
+  function onInputChange(v: string) {
+    setInput(v);
+    const m = v.match(/@([\p{L}\w]*)$/u);
+    setMentionQuery(m ? m[1] : null);
+    if (!m) setMentionResults([]);
+  }
+
+  function pickMention(t: Taggable) {
+    setInput((prev) => prev.replace(/@[\p{L}\w]*$/u, ""));
+    setTagged((prev) => (prev.some((x) => x.id === t.id) ? prev : [...prev, t]));
+    setMentionQuery(null);
+    setMentionResults([]);
+  }
+
+  function removeTag(id: string) {
+    setTagged((prev) => prev.filter((t) => t.id !== id));
+  }
+
   async function send(text: string) {
-    if (!text.trim() || loading) return;
-    setMessages((prev) => [...prev, { role: "user", text }]);
+    if ((!text.trim() && tagged.length === 0) || loading) return;
+    const sentTags = tagged;
+    setMessages((prev) => [...prev, { role: "user", text: text.trim() || "(about the tagged record)", tags: sentTags.map((t) => t.label) }]);
     setInput("");
+    setTagged([]);
+    setMentionQuery(null);
     setLoading(true);
 
-    const res = await askAssistant(text);
+    const refs: TaggedRef[] = sentTags.map((t) => ({ type: t.type as "lead" | "contact", id: t.id }));
+    const res = await askAssistant(text, refs);
     if (res.success && res.kind === "text") {
       setMessages((prev) => [...prev, { role: "assistant", text: res.reply }]);
     } else if (res.success && res.kind === "confirm") {
@@ -106,12 +155,7 @@ export function ChatbotWidget() {
                     <p className="text-sm text-foreground">{m.pendingAction.label}</p>
                     {m.actionState === "pending" && (
                       <div className="flex gap-2 pt-1">
-                        <Button
-                          size="sm"
-                          className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700"
-                          disabled={confirming === i}
-                          onClick={() => handleConfirm(i, m.pendingAction!)}
-                        >
+                        <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700" disabled={confirming === i} onClick={() => handleConfirm(i, m.pendingAction!)}>
                           {confirming === i ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Check className="w-3 h-3 mr-1" />}
                           Confirm
                         </Button>
@@ -124,13 +168,17 @@ export function ChatbotWidget() {
                     {m.actionState === "cancelled" && <p className="text-[11px] text-muted-foreground font-semibold">Cancelled</p>}
                   </div>
                 ) : (
-                  <div
-                    className={cn(
-                      "max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed",
-                      m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground"
+                  <div className={cn("max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed", m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
+                    {m.tags && m.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-1.5">
+                        {m.tags.map((t, k) => (
+                          <span key={k} className="inline-flex items-center gap-1 text-[10px] font-semibold bg-white/20 rounded px-1.5 py-0.5">
+                            <Tag className="w-2.5 h-2.5" /> {t}
+                          </span>
+                        ))}
+                      </div>
                     )}
-                  >
-                    {m.text}
+                    {m.role === "assistant" ? cleanText(m.text) : m.text}
                   </div>
                 )}
               </div>
@@ -147,35 +195,54 @@ export function ChatbotWidget() {
           {messages.length <= 1 && (
             <div className="px-3 pb-2 flex flex-wrap gap-1.5">
               {SUGGESTED_QUESTIONS.map((q) => (
-                <button
-                  key={q}
-                  onClick={() => send(q)}
-                  className="text-[11px] px-2.5 py-1.5 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground border border-border/50 transition-colors"
-                >
+                <button key={q} onClick={() => onInputChange(q.startsWith("Type @") ? "@" : q)} className="text-[11px] px-2.5 py-1.5 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground border border-border/50 transition-colors">
                   {q}
                 </button>
               ))}
             </div>
           )}
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              send(input);
-            }}
-            className="p-3 border-t border-border flex gap-2"
-          >
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask, or tell me to log an expense..."
-              className="h-9 text-sm"
-              disabled={loading}
-            />
-            <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={loading || !input.trim()}>
-              <Send className="w-4 h-4" />
-            </Button>
-          </form>
+          <div className="relative">
+            {/* @-mention dropdown */}
+            {mentionQuery !== null && mentionResults.length > 0 && (
+              <div className="absolute bottom-full left-3 right-3 mb-1 max-h-48 overflow-y-auto bg-popover border border-border rounded-xl shadow-2xl z-10">
+                <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground border-b border-border/50 flex items-center gap-1">
+                  <AtSign className="w-3 h-3" /> Tag a record
+                </div>
+                {mentionResults.map((r) => (
+                  <button key={r.id} onClick={() => pickMention(r)} className="w-full text-left px-3 py-2 hover:bg-muted flex flex-col">
+                    <span className="text-sm font-medium text-foreground">{r.label}</span>
+                    <span className="text-[11px] text-muted-foreground">{r.sub}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Tagged chips */}
+            {tagged.length > 0 && (
+              <div className="px-3 pt-2 flex flex-wrap gap-1.5">
+                {tagged.map((t) => (
+                  <span key={t.id} className="inline-flex items-center gap-1 text-[11px] font-semibold bg-primary/10 text-primary rounded-full pl-2 pr-1 py-0.5 border border-primary/20">
+                    <Tag className="w-3 h-3" /> {t.label}
+                    <button onClick={() => removeTag(t.id)} className="hover:bg-primary/20 rounded-full p-0.5"><X className="w-3 h-3" /></button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <form onSubmit={(e) => { e.preventDefault(); send(input); }} className="p-3 border-t border-border flex gap-2">
+              <Input
+                value={input}
+                onChange={(e) => onInputChange(e.target.value)}
+                placeholder="Ask, or type @ to tag a lead/customer..."
+                className="h-9 text-sm"
+                disabled={loading}
+              />
+              <Button type="submit" size="icon" className="h-9 w-9 shrink-0" disabled={loading || (!input.trim() && tagged.length === 0)}>
+                <Send className="w-4 h-4" />
+              </Button>
+            </form>
+          </div>
         </div>
       )}
     </>

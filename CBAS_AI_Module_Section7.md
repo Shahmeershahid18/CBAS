@@ -224,8 +224,18 @@ which execute only after explicit user confirmation.
 retriever scored a qualified, high-AI-score lead at **0.33** vs. **0.04** for an
 unrelated lost deal — correctly surfacing the relevant record.
 
-**Integration.** `askAssistant()` (`src/lib/actions/chatbot.ts`) +
-`retrieveContext()` (`src/lib/ai/retrieval.ts`). Requires `GEMINI_API_KEY`.
+**Record tagging with privacy redaction.** Users can `@`-mention a specific lead
+or customer in the chat and ask for tactical help ("how should I pitch this
+customer?"). The record's **non-identifying** business attributes (service,
+quoted value, source, AI score, engagement, sentiment, churn risk) are sent, but
+**personal identifiers — name, email, phone, and free-text notes — are redacted
+and never sent to the LLM** (`buildTaggedContext` in `chatbot.ts`). This
+demonstrates privacy-by-design: the model advises on the customer without ever
+receiving their personal data.
+
+**Integration.** `askAssistant()` / `searchTaggables()`
+(`src/lib/actions/chatbot.ts`) + `retrieveContext()` (`src/lib/ai/retrieval.ts`).
+Requires `GEMINI_API_KEY`.
 
 ---
 

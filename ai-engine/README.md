@@ -20,7 +20,16 @@ Next.js backend  ──HTTP──▶  AI Engine (FastAPI, this service)
 | `POST /analyze-sentiment` | Sentiment — TF-IDF + Logistic Regression (3-class) | ✅ Implemented |
 | `GET  /recommendations/{id}` | Recommendations — matrix-factorization collaborative filtering | ✅ Implemented |
 | `POST /predict-churn-crm` | Churn (CRM-native) — trained on CBAS's own engagement data | ✅ Implemented |
+| `POST /analyze-sentiment-crm` | Sentiment (CRM-native) — trained on business/sales note language | ✅ Implemented |
 | _(in the Next.js app)_ | Chatbot — Gemini LLM + RAG retrieval over CRM records | ✅ Implemented |
+
+Sentiment, like churn and recommendations, has a **benchmark** model (product
+reviews) and an **app-native** model (CRM notes). The app uses the CRM-native
+model for activity notes, because the review model mislabels business language
+("signed the contract", "renewed early"). The recommender is trained on the
+app's own orders, whose catalogue is the software house's **digital services**
+(web/mobile, cloud/DevOps, marketing/SEO, software/support), and uses item-based
+collaborative filtering so suggestions reflect each customer's own purchases.
 
 Churn and recommendations exist in **two flavours**: a *benchmark* model trained
 on public Kaggle data (proves the technique), and an *app-native* model trained

@@ -40,7 +40,11 @@ export async function askGemini(
         contents: [{ role: "user", parts: [{ text: userMessage }] }],
         generationConfig: {
             temperature: 0.3,
-            maxOutputTokens: 300,
+            // gemini-flash-latest (2.5 Flash) enables "thinking" by default, which
+            // consumes the output-token budget and truncates the visible answer.
+            // Disable it for this fast, concise assistant and keep ample room.
+            maxOutputTokens: 800,
+            thinkingConfig: { thinkingBudget: 0 },
         },
     };
 

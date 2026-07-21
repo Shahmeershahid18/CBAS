@@ -67,23 +67,34 @@ def _popular(bundle: dict, n: int, exclude: set[int]) -> list[dict]:
 
 
 def recommend(customer_id: str, n: int = 5) -> dict:
-    """Return {customer_id, personalized, recommendations:[{item_id,name,category,score}]}."""
+    """
+    Return {customer_id, personalized, recommendations:[{item_id,name,category,score}]}.
+
+    Uses ITEM-BASED collaborative filtering: each candidate service is scored by
+    how similar it is (in SVD latent space) to the services THIS customer has
+    already bought, so recommendations reflect the individual's own taste rather
+    than global popularity. Unknown / no-purchase customers fall back to popularity.
+    """
     bundle = _load()
     user_map = bundle["user_map"]
     internal = user_map.get(str(customer_id))
+    seen = set(bundle["user_seen"].get(internal, [])) if internal is not None else set()
 
-    if internal is None:
-        # Cold start — unknown customer, recommend popular items.
-        recs = _popular(bundle, n, exclude=set())
+    if internal is None or not seen:
+        recs = _popular(bundle, n, exclude=seen)
         for r in recs:
             r["score"] = None
         return {"customer_id": str(customer_id), "personalized": False, "recommendations": recs}
 
-    user_vec = np.asarray(bundle["user_factors"][internal], dtype=np.float32)
+    # L2-normalize item vectors so a dot product is cosine similarity.
     item_factors = np.asarray(bundle["item_factors"], dtype=np.float32)
-    scores = item_factors @ user_vec
+    norms = np.linalg.norm(item_factors, axis=1, keepdims=True)
+    unit = item_factors / np.clip(norms, 1e-8, None)
 
-    seen = set(bundle["user_seen"].get(internal, []))
+    # Customer taste profile = centroid of the items they bought; score every
+    # other item by cosine similarity to that profile.
+    profile = unit[list(seen)].mean(axis=0)
+    scores = unit @ profile
     for i in seen:
         scores[i] = -np.inf
 

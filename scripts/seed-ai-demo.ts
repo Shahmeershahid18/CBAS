@@ -20,11 +20,12 @@ const pool = new pg.Pool({ connectionString: `${process.env.DATABASE_URL}` });
 const adapter = new PrismaPg(pool as any);
 const prisma = new PrismaClient({ adapter });
 
+// Digital services offered by a software house (the "products" a CRM customer buys).
 const CATEGORIES: Record<string, string[]> = {
-    Electronics: ["Wireless Mouse", "USB-C Hub", "Mechanical Keyboard", "Webcam 1080p", "Noise-Cancelling Headphones", "Laptop Stand", "Portable SSD", "Monitor Arm", "4K Monitor", "Docking Station", "Graphics Tablet", "Smart Speaker"],
-    Office: ["Ergonomic Chair", "Standing Desk", "Desk Organizer", "Whiteboard", "Sticky Notes Pack", "Document Scanner", "Label Maker", "Filing Cabinet", "Desk Lamp", "Paper Shredder", "Conference Phone", "Bookshelf"],
-    Software: ["CRM License", "Antivirus 1yr", "VPN Subscription", "Cloud Storage 2TB", "Design Suite", "Project Tool Seat", "Email Marketing Plan", "Analytics Add-on", "Password Manager", "Backup Service", "E-Sign Plan", "Helpdesk Seat"],
-    Peripherals: ["HDMI Cable", "Power Bank", "Wireless Charger", "Bluetooth Speaker", "Surge Protector", "Cable Sleeve", "Laptop Bag", "Screen Cleaner", "Keyboard Wrist Rest", "USB Microphone", "Ring Light", "Travel Adapter"],
+    "Web & Mobile": ["Website Development", "E-commerce Store", "iOS App Development", "Android App Development", "Progressive Web App", "API Integration", "Website Redesign", "Landing Page Design"],
+    "Cloud & DevOps": ["Cloud Hosting", "Managed VPS", "Cloud Migration", "DevOps Setup", "Database Management", "Server Monitoring", "Backup & Recovery", "SSL & Domain Setup"],
+    "Marketing & SEO": ["SEO Package", "Google Ads Management", "Social Media Management", "Content Writing", "Email Marketing Campaign", "Branding Package", "PPC Campaign", "Analytics Setup"],
+    "Software & Support": ["CRM License", "Custom Software Development", "UI/UX Design", "QA & Testing", "Annual Maintenance Contract", "Technical Support Plan", "Software Audit", "Staff Augmentation"],
 };
 
 const FIRST = ["Alex", "Sam", "Jordan", "Casey", "Riley", "Taylor", "Morgan", "Jamie", "Avery", "Quinn", "Drew", "Reese", "Skyler", "Cameron", "Parker", "Rowan", "Sage", "Blake", "Hayden", "Emerson"];
@@ -98,11 +99,24 @@ async function main() {
     const tenureById = new Map(contactRows.map((c) => [c.id, c.createdAt as Date]));
     console.log(`  ${contactRows.length} contacts`);
 
+    // Give EXISTING (non-seed) contacts a taste profile too, so every contact —
+    // including the original demo contacts — has purchase history and gets
+    // personalized recommendations rather than the popularity fallback.
+    const existing = await prisma.contact.findMany({
+        where: { workspaceId, NOT: { email: { endsWith: "@ai-seed.demo" } } },
+        select: { id: true },
+    });
+    const orderProfiles = [
+        ...profiles,
+        ...existing.map((c) => ({ id: c.id, prefs: [...cats].sort(() => Math.random() - 0.5).slice(0, 2), p: Math.random() })),
+    ];
+    console.log(`  ${existing.length} existing contacts also given purchase history`);
+
     // --- Orders + items (recommendation signal) ----------------------------
     const orderRows: any[] = [];
     const itemRows: any[] = [];
-    for (const { id: contactId, prefs, p } of profiles) {
-        const nOrders = poisson(1 + p * 6);
+    for (const { id: contactId, prefs, p } of orderProfiles) {
+        const nOrders = Math.max(1, poisson(1 + p * 6));
         for (let o = 0; o < nOrders; o++) {
             const orderId = randomUUID();
             const nItems = 1 + rand(3);

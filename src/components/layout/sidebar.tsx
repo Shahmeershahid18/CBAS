@@ -131,7 +131,7 @@ export function Sidebar({
                 </Link>
             </div>
 
-            <div className="flex-1 py-4 overflow-y-auto px-4 space-y-4 scrollbar-none">
+            <div className="flex-1 py-4 overflow-y-auto px-4 space-y-4 no-scrollbar">
                 {workspaces.length > 0 && (
                     <div id="workspace-switcher-hub" className="space-y-2 mb-4">
                         <div className="px-3 text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">

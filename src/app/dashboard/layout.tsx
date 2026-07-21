@@ -126,12 +126,12 @@ export default async function DashboardLayout({
     const trialStatus = await getTrialStatus(activeWorkspaceId);
 
     return (
-        <div className="flex bg-background min-h-screen text-foreground selection:bg-primary/20 overflow-x-hidden w-full max-w-[100vw]">
+        <div className="fixed inset-0 flex bg-background text-foreground selection:bg-primary/20 overflow-hidden">
             <BrowserNotifications />
             <SyncProvider />
             <ChatbotWidget />
             <Sidebar role={effectiveRole} workspaces={workspaces} activeWorkspaceId={activeWorkspaceId} isMaster={isMaster} planTier={planTier} />
-            <main className="flex-1 md:ml-[260px] flex flex-col h-dvh overflow-hidden w-full">
+            <main className="flex-1 md:ml-[260px] flex flex-col h-full overflow-hidden w-full min-w-0">
                 {trialStatus && trialStatus.isActive && (
                     <div className="shrink-0">
                         <TrialBanner 

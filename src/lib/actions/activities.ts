@@ -33,8 +33,11 @@ export async function createActivity(data: {
         let sentimentScore: number | null = null;
         if (data.notes && data.notes.trim().length > 0) {
             try {
-                const { analyzeSentimentRemote } = await import("@/lib/ai/engine");
-                const res = await analyzeSentimentRemote(data.notes);
+                // Use the CRM-native model — trained on business/sales language,
+                // so notes like "signed the contract" or "renewed early" classify
+                // correctly (the review-trained model mislabels them).
+                const { analyzeSentimentCrmRemote } = await import("@/lib/ai/engine");
+                const res = await analyzeSentimentCrmRemote(data.notes);
                 sentiment = res.sentiment;
                 sentimentScore = res.confidence;
             } catch (e) {

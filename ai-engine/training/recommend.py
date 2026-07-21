@@ -40,6 +40,7 @@ DEFAULT_CSV = DATA_DIR / "retail.csv"
 USER_COLS = ["user_id", "CustomerID", "UserId", "customer_id", "Customer Id"]
 ITEM_COLS = ["item_id", "StockCode", "ProductId", "product_id", "Description", "item"]
 NAME_COLS = ["item_name", "Description", "ProductName", "product_name", "name", "Product Name"]
+CAT_COLS = ["item_category", "category", "Category", "product_category"]
 QTY_COLS = ["quantity", "Quantity", "qty"]
 
 N_FACTORS = 32
@@ -57,9 +58,11 @@ def load_dataset(csv_path: Path | None, force_synthetic: bool):
         qcol = next((c for c in QTY_COLS if c in raw.columns), None)
         # A friendlier item label column (e.g. Description) when the item key is a code.
         ncol = next((c for c in NAME_COLS if c in raw.columns and c != icol), None)
-        cols = [ucol, icol] + ([ncol] if ncol else []) + ([qcol] if qcol else [])
+        ccol = next((c for c in CAT_COLS if c in raw.columns and c != icol), None)
+        cols = [ucol, icol] + ([ncol] if ncol else []) + ([ccol] if ccol else []) + ([qcol] if qcol else [])
         df = raw[cols].dropna(subset=[ucol, icol]).copy()
-        df.columns = ["user_raw", "item_raw"] + (["item_name"] if ncol else []) + (["quantity"] if qcol else [])
+        df.columns = (["user_raw", "item_raw"] + (["item_name"] if ncol else [])
+                      + (["item_category"] if ccol else []) + (["quantity"] if qcol else []))
 
         # Normalize ids to clean strings: float customer ids like 17850.0 -> "17850"
         # so the app/API can query by the natural id.
@@ -81,6 +84,10 @@ def load_dataset(csv_path: Path | None, force_synthetic: bool):
         items_df = (df.groupby("item_id")["item_name"]
                     .agg(lambda s: s.mode().iat[0] if not s.mode().empty else s.iat[0])
                     .reset_index().rename(columns={"item_name": "name"}))
+        if ccol:
+            cat_map = (df.groupby("item_id")["item_category"]
+                       .agg(lambda s: s.mode().iat[0] if not s.mode().empty else s.iat[0]))
+            items_df["category"] = items_df["item_id"].map(cat_map)
         inter = df.groupby(["user_id", "item_id"], as_index=False)["quantity"].sum()
         # Preserve the raw customer id -> internal id mapping so the app can query by real id.
         user_map = (df[["user_raw", "user_id"]].drop_duplicates()

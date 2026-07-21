@@ -47,12 +47,12 @@ async function main() {
     // --- Orders CSV (recommender) -----------------------------------------
     const items = await prisma.orderItem.findMany({
         where: { order: { workspaceId } },
-        select: { quantity: true, order: { select: { contactId: true } }, product: { select: { id: true, name: true } } },
+        select: { quantity: true, order: { select: { contactId: true } }, product: { select: { id: true, name: true, category: true } } },
     });
     const orderRows = items
         .filter((it) => it.order?.contactId)
-        .map((it) => [it.order!.contactId, it.product.id, it.product.name, it.quantity]);
-    writeCsv("crm_orders.csv", ["user_id", "item_id", "item_name", "quantity"], orderRows);
+        .map((it) => [it.order!.contactId, it.product.id, it.product.name, it.product.category ?? "", it.quantity]);
+    writeCsv("crm_orders.csv", ["user_id", "item_id", "item_name", "item_category", "quantity"], orderRows);
 
     // --- Churn CSV (churn model) ------------------------------------------
     const contacts = await prisma.contact.findMany({

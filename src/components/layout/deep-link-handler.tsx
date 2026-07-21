@@ -2,39 +2,38 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { App } from "@capacitor/app";
 
 export function DeepLinkHandler() {
     const router = useRouter();
 
     useEffect(() => {
-        // Only run if we are in a Capacitor environment
-        const setupDeepLinks = async () => {
-            const platform = (window as any).Capacitor?.getPlatform();
-            if (platform !== 'android' && platform !== 'ios') return;
+        // Guard FIRST: on the web there is no Capacitor native runtime, so we must
+        // never import @capacitor/app (that native-only chunk fails to load in the
+        // browser and throws ChunkLoadError). Only load it on android/ios.
+        const platform = (window as any).Capacitor?.getPlatform?.();
+        if (platform !== "android" && platform !== "ios") return;
 
-            App.addListener('appUrlOpen', (data: any) => {
-                const url = new URL(data.url);
-                const path = url.pathname;
-                const searchParams = url.searchParams;
+        let remove: (() => void) | undefined;
 
-                // Handle Magic Link (Registration Wizard)
-                if (path.includes('/auth/register-flow')) {
-                    const token = searchParams.get('token');
-                    if (token) {
-                        router.push(`/auth/register-flow?token=${token}`);
+        (async () => {
+            try {
+                const { App } = await import("@capacitor/app");
+                const handle = await App.addListener("appUrlOpen", (data: any) => {
+                    const url = new URL(data.url);
+                    // Handle Magic Link (Registration Wizard)
+                    if (url.pathname.includes("/auth/register-flow")) {
+                        const token = url.searchParams.get("token");
+                        if (token) router.push(`/auth/register-flow?token=${token}`);
                     }
-                }
-                
-                // Handle Login Redirects or other features here
-            });
-        };
+                    // Handle other deep-link features here.
+                });
+                remove = () => handle.remove();
+            } catch (e) {
+                console.error("Deep-link setup skipped:", e);
+            }
+        })();
 
-        setupDeepLinks();
-
-        return () => {
-            App.removeAllListeners();
-        };
+        return () => { remove?.(); };
     }, [router]);
 
     return null; // This component doesn't render anything

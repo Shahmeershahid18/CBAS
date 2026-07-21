@@ -23,7 +23,8 @@ python -m venv .venv
 pip install -r requirements.txt
 python -m scripts.train_all             # lead, churn, sentiment, recommend (Kaggle)
 python -m training.churn_crm            # app-native churn
-python -m training.recommend --data data/crm_orders.csv   # app-native recs
+python -m training.sentiment_crm        # app-native CRM-note sentiment
+python -m training.recommend --data data/crm_orders.csv   # app-native recs (digital services)
 ```
 
 ---
@@ -95,12 +96,18 @@ curl -X POST http://127.0.0.1:8088/predict-churn-crm -H "Content-Type: applicati
 ### 3.3 Sentiment Analysis
 **UI:** Dashboard → **Leads** → open a lead → type a note in the activity box →
 **Save**. A coloured 😊/😐/😞 **sentiment badge** appears next to the note.
-Try: "Great service, very happy" (positive) vs "Terrible, want a refund" (negative).
-**API:**
+Notes are analysed by the **CRM-native** model (`/analyze-sentiment-crm`), trained
+on business language, so sales phrasing classifies correctly:
+- "Client is thrilled, signed the contract today" → positive
+- "Angry client, threatening to cancel the contract" → negative
+- "Called the client, left a voicemail, awaiting reply" → neutral
+
+**API (CRM notes — used by the app):**
 ```bash
-curl -X POST http://127.0.0.1:8088/analyze-sentiment -H "Content-Type: application/json" \
-  -d '{"text":"the product stopped working after two days, very poor quality"}'
+curl -X POST http://127.0.0.1:8088/analyze-sentiment-crm -H "Content-Type: application/json" \
+  -d '{"text":"Customer renewed early, very happy with our service"}'
 ```
+**API (review benchmark model):** `POST /analyze-sentiment` (best on product-review text).
 
 ### 3.4 Recommendations
 **UI:** Dashboard → **Contacts** → row menu (⋮) → **Recommend Products** → a dialog
@@ -125,6 +132,15 @@ Get a seeded contact id with orders:
    - *"Which contacts are high churn risk?"* (uses retrieved records)
    - *"Log an expense of $200 for software"* → it proposes an action you **Confirm**.
 Without a key the widget replies that the assistant is unavailable — that's expected.
+
+**Tagging a lead/customer (@-mention) + privacy:**
+- Type **`@`** then a name → pick a lead/contact from the dropdown → a tag chip appears.
+- Ask *"How should I pitch this customer?"* / *"What's the next best action?"* → the
+  assistant advises using that record's business attributes (service, value, source,
+  AI score, engagement, churn risk).
+- **Privacy:** the picker shows names to *you*, but only **non-identifying** attributes
+  are sent to the LLM. Name, email, phone, and raw notes are **never** sent (redacted in
+  `buildTaggedContext`). Tag multiple records to compare.
 
 ### 3.6 AI Insights dashboard widget
 **UI:** the **Dashboard** home page. After you've scored some leads/contacts and

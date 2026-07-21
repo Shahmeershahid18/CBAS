@@ -72,7 +72,99 @@ function describeAction(name: string, args: any): string {
  * than guessing. It may also propose ONE of the two tools above — but only ever
  * proposes; the caller must call confirmAssistantAction() to actually execute it.
  */
-export async function askAssistant(message: string) {
+// --- @-mention support -----------------------------------------------------
+
+export interface TaggedRef {
+    type: "lead" | "contact";
+    id: string;
+}
+
+/**
+ * Search leads/contacts by name for the chat's @-mention picker. The returned
+ * `label` (the person's name) is shown ONLY in the user's own browser to pick a
+ * record — it is never sent to the LLM. askAssistant() receives just {type,id}
+ * and builds a PII-redacted context from it.
+ */
+export async function searchTaggables(query: string) {
+    try {
+        const user = await requireUser();
+        const workspaceId = (user as any).activeWorkspaceId || null;
+        const q = (query || "").trim();
+        if (!q) return { success: true, results: [] as { type: string; id: string; label: string; sub: string }[] };
+
+        const [leads, contacts] = await Promise.all([
+            prisma.lead.findMany({
+                where: { workspaceId, OR: [{ firstName: { contains: q, mode: "insensitive" } }, { lastName: { contains: q, mode: "insensitive" } }] },
+                select: { id: true, firstName: true, lastName: true, service: true, status: true },
+                take: 5,
+            }),
+            prisma.contact.findMany({
+                where: { workspaceId, OR: [{ firstName: { contains: q, mode: "insensitive" } }, { lastName: { contains: q, mode: "insensitive" } }] },
+                select: { id: true, firstName: true, lastName: true, organization: { select: { name: true } } },
+                take: 5,
+            }),
+        ]);
+
+        const results = [
+            ...leads.map((l) => ({ type: "lead", id: l.id, label: `${l.firstName} ${l.lastName}`, sub: `Lead · ${l.status}` })),
+            ...contacts.map((c) => ({ type: "contact", id: c.id, label: `${c.firstName} ${c.lastName}`, sub: `Contact${(c as any).organization?.name ? " · " + (c as any).organization.name : ""}` })),
+        ];
+        return { success: true, results };
+    } catch (error: any) {
+        return { success: false, error: error.message || "Search failed", results: [] };
+    }
+}
+
+const tally = (xs: (string | null)[]) => {
+    const m: Record<string, number> = {};
+    for (const x of xs) if (x) m[x] = (m[x] || 0) + 1;
+    return Object.entries(m).map(([k, v]) => `${k} x${v}`).join(", ");
+};
+
+/**
+ * Builds a PII-REDACTED context block for a tagged record. Personal identifiers
+ * (name, email, phone) and free-text notes/remarks (which may contain personal
+ * data) are DELIBERATELY EXCLUDED. Only non-identifying business attributes are
+ * included, which is enough to advise on how to pitch/handle the record.
+ */
+async function buildTaggedContext(ref: TaggedRef, workspaceId: string | null, index: number): Promise<string | null> {
+    if (ref.type === "lead") {
+        const lead = await prisma.lead.findFirst({
+            where: { id: ref.id, workspaceId },
+            include: { activities: { select: { type: true, sentiment: true } } },
+        });
+        if (!lead) return null;
+        const acts = lead.activities;
+        return `[Tagged record #${index + 1} — LEAD | personal identifiers withheld for privacy]
+- Interest / service: ${lead.service || "unspecified"}
+- Pipeline status: ${lead.status}
+- Quoted value: $${lead.quotation ?? 0}
+- Lead source: ${lead.source}
+- AI lead score: ${lead.aiScore != null ? `${lead.aiScore}/100 (${lead.aiScoreBand})` : "not scored yet"}
+- Engagement: ${acts.length} activities${acts.length ? ` (${tally(acts.map((a) => a.type))})` : ""}${acts.some((a) => a.sentiment) ? `; interaction sentiment: ${tally(acts.map((a) => a.sentiment))}` : ""}`;
+    }
+
+    const contact = await prisma.contact.findFirst({
+        where: { id: ref.id, workspaceId },
+        include: {
+            activities: { select: { type: true, sentiment: true } },
+            orders: { select: { total: true, items: { select: { product: { select: { category: true } } } } } },
+            organization: { select: { name: true } },
+        },
+    });
+    if (!contact) return null;
+    const acts = contact.activities;
+    const cats = new Set<string>();
+    contact.orders.forEach((o) => o.items.forEach((it) => it.product.category && cats.add(it.product.category)));
+    const spend = contact.orders.reduce((s, o) => s + (o.total || 0), 0);
+    return `[Tagged record #${index + 1} — CUSTOMER | personal identifiers withheld for privacy]
+- Organization: ${(contact as any).organization?.name || "n/a"}
+- Churn risk: ${(contact as any).churnScore != null ? `${(contact as any).churnBand} (${(contact as any).churnScore}/100)` : "not scored yet"}
+- Purchases: ${contact.orders.length} orders${cats.size ? ` across ${[...cats].join(", ")}` : ""}; total spend $${Math.round(spend)}
+- Engagement: ${acts.length} activities${acts.some((a) => a.sentiment) ? `; sentiment: ${tally(acts.map((a) => a.sentiment))}` : ""}`;
+}
+
+export async function askAssistant(message: string, tagged: TaggedRef[] = []) {
     try {
         const user = await requireUser();
         const workspaceId = (user as any).activeWorkspaceId || null;
@@ -109,9 +201,27 @@ export async function askAssistant(message: string) {
             console.error("RAG retrieval skipped:", e);
         }
 
-        const systemContext = `You are the built-in AI assistant for CoreAxis, a Business Automation System (BAS). Answer the user's question using ONLY the real workspace data below. Be concise (2-4 sentences). If the question can't be answered from this data, say so plainly instead of guessing.
+        // Tagged records (@-mentions): build PII-redacted context blocks.
+        let taggedBlock = "";
+        if (tagged.length > 0) {
+            const blocks = await Promise.all(tagged.slice(0, 5).map((r, i) => buildTaggedContext(r, workspaceId, i)));
+            taggedBlock = blocks.filter(Boolean).join("\n\n");
+        }
+
+        const systemContext = `You are the built-in AI assistant for CoreAxis, a Business Automation System (BAS). Answer the user's question using ONLY the real workspace data below. If the question can't be answered from this data, say so plainly instead of guessing. Keep general answers to 2-4 sentences; for advice about a tagged record you may use up to 6 short sentences.
+
+Write in plain conversational sentences. Do NOT use any markdown formatting — no **bold**, no asterisks, no headings, no bullet points.
 
 If — and only if — the user is clearly asking you to record/log/add something (an expense, or received stock), call the matching tool instead of replying in text. Otherwise, always reply in plain text. Never call a tool for a question that's just asking for information.
+
+PRIVACY: The tagged records below have had all personal identifiers (name, email, phone) and free-text notes removed on purpose. Never ask for or invent them. Refer to a tagged record as "this lead" / "this customer".
+
+When advising on a tagged record, you MUST explicitly tailor the advice to its specific attributes — do not give generic sales tips:
+- Adapt the strategy to the LEAD SOURCE: a Cold Call means low initial intent, so be consultative and earn trust before pitching; a Referral or Reference means warm trust you should leverage by mentioning the referrer's confidence and moving faster; an inbound Website/Landing Page or Olark Chat means the lead sought you out, so intent is higher and you can focus on closing; a Google/Organic source means research-driven, so lead with proof and comparisons.
+- Weigh the PIPELINE STATUS (NEW = qualify first; QUALIFIED = pitch and handle objections; CONVERTED = shift to onboarding, retention, and upsell).
+- Scale effort to the QUOTED VALUE and the AI SCORE (higher value/hotter score = prioritise and involve a senior rep).
+- Use the ENGAGEMENT and SENTIMENT level (low/zero engagement = re-engage gently; negative sentiment = address concerns before selling).
+Name the relevant attribute in your answer (e.g. "because this came from a cold call…") and recommend one concrete next best action, plus specific services to pitch when the interest is known. If a key attribute is unspecified, say the first step is to discover it.
 
 Workspace snapshot:
 - Sales/CRM: ${leadCount} leads, ${dealCount} deals in pipeline.
@@ -119,7 +229,7 @@ Workspace snapshot:
 - Inventory: ${inventorySummary}
 - HR/Attendance: ${attendanceSummary}
 - Recruitment: ${candidateCount} candidates in the pipeline.
-${retrieved ? `\nMost relevant records to this question (retrieved by semantic search):\n${retrieved}` : ""}`;
+${taggedBlock ? `\nTagged record(s) the user is asking about:\n${taggedBlock}` : ""}${retrieved ? `\nOther relevant records (semantic search):\n${retrieved}` : ""}`;
 
         const result = await askGemini(systemContext, message, TOOLS);
 

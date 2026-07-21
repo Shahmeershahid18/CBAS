@@ -15,7 +15,7 @@ from __future__ import annotations
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
 
 from app import config
-from app.models import churn, churn_crm, lead_scoring, recommend, sentiment
+from app.models import churn, churn_crm, lead_scoring, recommend, sentiment, sentiment_crm
 from app.schemas.churn import ChurnFeatures, ChurnResponse
 from app.schemas.churn_crm import CrmChurnFeatures
 from app.schemas.lead import LeadFeatures, ScoreResponse
@@ -55,6 +55,9 @@ def health() -> dict:
             },
             "sentiment": {
                 "ready": sentiment.is_ready(),
+            },
+            "sentiment_crm": {
+                "ready": sentiment_crm.is_ready(),
             },
             "recommendations": {
                 "ready": recommend.is_ready(),
@@ -139,6 +142,26 @@ def analyze_sentiment(req: SentimentRequest) -> SentimentResponse:
     try:
         result = sentiment.analyze_sentiment(req.text)
     except sentiment.ModelNotTrainedError as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
+    return SentimentResponse(**result)
+
+
+@app.get("/models/sentiment-crm", dependencies=[Depends(require_api_key)])
+def sentiment_crm_info() -> dict:
+    """CRM-note sentiment model metadata + metrics."""
+    try:
+        return sentiment_crm.model_info()
+    except sentiment_crm.ModelNotTrainedError as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
+
+
+@app.post("/analyze-sentiment-crm", response_model=SentimentResponse,
+          dependencies=[Depends(require_api_key)])
+def analyze_sentiment_crm(req: SentimentRequest) -> SentimentResponse:
+    """Classify a CRM note (business language) as positive / negative / neutral."""
+    try:
+        result = sentiment_crm.analyze_sentiment(req.text)
+    except sentiment_crm.ModelNotTrainedError as exc:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
     return SentimentResponse(**result)
 

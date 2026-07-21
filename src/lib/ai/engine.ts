@@ -151,6 +151,12 @@ export function analyzeSentimentRemote(text: string): Promise<SentimentResult> {
     return post<SentimentResult>("/analyze-sentiment", { text });
 }
 
+// CRM-note sentiment — model trained on business language (used for activity
+// notes; the review-trained /analyze-sentiment mislabels CRM phrasing).
+export function analyzeSentimentCrmRemote(text: string): Promise<SentimentResult> {
+    return post<SentimentResult>("/analyze-sentiment-crm", { text });
+}
+
 // --- Recommendations -------------------------------------------------------
 
 export interface RecommendedItem {

@@ -32,11 +32,11 @@ import { Logo } from "@/components/brand/logo";
 
 const salesLinks = [
     { name: "CRM Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Leads", href: "/dashboard/leads", icon: Users },
-    { name: "Contacts", href: "/dashboard/contacts", icon: UserCircle2 },
+    { name: "Prospect Scoring", href: "/dashboard/leads", icon: Users },
+    { name: "Firmographic Entities", href: "/dashboard/contacts", icon: UserCircle2 },
     { name: "Sales Pipeline", href: "/dashboard/deals", icon: Briefcase },
     { name: "Orders", href: "/dashboard/orders", icon: ClipboardCheck },
-    { name: "Organizations", href: "/dashboard/organizations", icon: Building2 },
+    { name: "B2B Portfolios", href: "/dashboard/organizations", icon: Building2 },
     { name: "Activities", href: "/dashboard/activities", icon: Activity },
 ];
 

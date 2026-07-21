@@ -168,7 +168,7 @@ export function ChatbotWidget() {
                     {m.actionState === "cancelled" && <p className="text-[11px] text-muted-foreground font-semibold">Cancelled</p>}
                   </div>
                 ) : (
-                  <div className={cn("max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed", m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted text-foreground")}>
+                  <div className={cn("max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed", m.role === "user" ? "bg-primary text-primary-foreground selection:bg-white selection:text-primary" : "bg-muted text-foreground")}>
                     {m.tags && m.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-1.5">
                         {m.tags.map((t, k) => (

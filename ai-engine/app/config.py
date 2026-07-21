@@ -18,6 +18,7 @@ API_KEY = os.getenv("AI_ENGINE_API_KEY", "").strip()
 ARTIFACTS_DIR = BASE_DIR / os.getenv("ARTIFACTS_DIR", "artifacts")
 
 LEAD_SCORING_ARTIFACT = ARTIFACTS_DIR / "lead_scoring.joblib"
+LEAD_CRM_ARTIFACT = ARTIFACTS_DIR / "lead_crm.joblib"
 CHURN_ARTIFACT = ARTIFACTS_DIR / "churn.joblib"
 CHURN_CRM_ARTIFACT = ARTIFACTS_DIR / "churn_crm.joblib"
 SENTIMENT_ARTIFACT = ARTIFACTS_DIR / "sentiment.joblib"

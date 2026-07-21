@@ -672,11 +672,9 @@ export async function markLeadAsViewed(leadId: string) {
 }
 
 /**
- * AI lead scoring. Maps the CRM lead record onto the features the AI Engine's
- * trained lead-scoring model expects, calls the Python service, and writes the
- * 0-100 score + band + rationale back onto the lead. Fields the CRM doesn't
- * track (time on site, page views, occupation, ...) are simply omitted — the
- * model imputes them.
+ * AI lead scoring using the CRM-native model (training.lead_crm), trained on
+ * CBAS's own leads so it understands the app's real source/service vocabulary.
+ * Writes the 0-100 score + band + rationale back onto the lead.
  */
 export async function scoreLead(leadId: string) {
     try {
@@ -690,20 +688,16 @@ export async function scoreLead(leadId: string) {
         const workspaceId = (user as any).activeWorkspaceId || null;
         const lead = await getVerifiedRecord(prisma.lead, leadId, user.id, effectiveRole, workspaceId);
 
-        // Most recent activity type -> the model's `last_activity` feature.
-        const lastActivity = await prisma.activity.findFirst({
-            where: { leadId: lead.id },
-            orderBy: { createdAt: "desc" },
-            select: { type: true },
-        });
+        const numActivities = await prisma.activity.count({ where: { leadId: lead.id } });
 
-        const { scoreLeadRemote } = await import("@/lib/ai/engine");
-        const result = await scoreLeadRemote({
-            lead_source: lead.source || undefined,
-            specialization: lead.service || undefined,
-            last_activity: lastActivity?.type || undefined,
-            // Behavioural fields (visits, time on site, page views, occupation)
-            // aren't captured by the CRM yet; the model imputes them.
+        const { scoreLeadCrmRemote } = await import("@/lib/ai/engine");
+        const result = await scoreLeadCrmRemote({
+            source: lead.source || undefined,
+            service: (lead as any).service || undefined,
+            quotation: (lead as any).quotation ?? 0,
+            num_activities: numActivities,
+            has_email: lead.email ? 1 : 0,
+            has_phone: (lead as any).phone ? 1 : 0,
         });
 
         const updated = await prisma.lead.update({

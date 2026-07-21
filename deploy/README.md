@@ -92,6 +92,7 @@ after the DB is seeded run once on the server:
 cd /var/www/cbas
 npm run db:seed:ai && npm run ai:export
 cd ai-engine
+./.venv/bin/python -m training.lead_crm
 ./.venv/bin/python -m training.churn_crm
 ./.venv/bin/python -m training.sentiment_crm
 ./.venv/bin/python -m training.recommend --data data/crm_orders.csv

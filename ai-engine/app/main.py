@@ -15,10 +15,11 @@ from __future__ import annotations
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
 
 from app import config
-from app.models import churn, churn_crm, lead_scoring, recommend, sentiment, sentiment_crm
+from app.models import churn, churn_crm, lead_crm, lead_scoring, recommend, sentiment, sentiment_crm
 from app.schemas.churn import ChurnFeatures, ChurnResponse
 from app.schemas.churn_crm import CrmChurnFeatures
 from app.schemas.lead import LeadFeatures, ScoreResponse
+from app.schemas.lead_crm import CrmLeadFeatures
 from app.schemas.recommend import RecommendationsResponse
 from app.schemas.sentiment import SentimentRequest, SentimentResponse
 
@@ -46,6 +47,9 @@ def health() -> dict:
         "models": {
             "lead_scoring": {
                 "ready": lead_scoring.is_ready(),
+            },
+            "lead_crm": {
+                "ready": lead_crm.is_ready(),
             },
             "churn": {
                 "ready": churn.is_ready(),
@@ -82,6 +86,26 @@ def score_lead(features: LeadFeatures) -> ScoreResponse:
     try:
         result = lead_scoring.score_lead(features.model_dump(exclude_none=True))
     except lead_scoring.ModelNotTrainedError as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
+    return ScoreResponse(**result)
+
+
+@app.get("/models/lead-scoring-crm", dependencies=[Depends(require_api_key)])
+def lead_crm_info() -> dict:
+    """CRM-native lead-scoring model metadata + held-out metrics."""
+    try:
+        return lead_crm.model_info()
+    except lead_crm.ModelNotTrainedError as exc:
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
+
+
+@app.post("/score-lead-crm", response_model=ScoreResponse,
+          dependencies=[Depends(require_api_key)])
+def score_lead_crm(features: CrmLeadFeatures) -> ScoreResponse:
+    """Score a lead's conversion likelihood using the model trained on CBAS's own leads."""
+    try:
+        result = lead_crm.score_lead(features.model_dump(exclude_none=True))
+    except lead_crm.ModelNotTrainedError as exc:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, str(exc))
     return ScoreResponse(**result)
 

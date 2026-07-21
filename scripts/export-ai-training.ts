@@ -97,6 +97,30 @@ async function main() {
 
     const churnRate = (churnRows.filter((r) => r[8] === 1).length / churnRows.length * 100).toFixed(1);
     console.log(`Churn base rate: ${churnRate}%  (${churnRows.length} contacts)`);
+
+    // --- Leads CSV (lead-scoring model) -----------------------------------
+    const leads = await prisma.lead.findMany({
+        where: { workspaceId },
+        select: {
+            source: true, service: true, quotation: true, status: true,
+            email: true, phone: true,
+            _count: { select: { activities: true } },
+        },
+    });
+    const leadRows = leads.map((l) => [
+        l.source || "",
+        l.service || "",
+        Math.round(l.quotation ?? 0),
+        l._count.activities,
+        l.email ? 1 : 0,
+        l.phone ? 1 : 0,
+        l.status === "CONVERTED" ? 1 : 0,   // target
+    ]);
+    writeCsv("crm_leads.csv",
+        ["source", "service", "quotation", "num_activities", "has_email", "has_phone", "converted"],
+        leadRows);
+    const convRate = (leadRows.filter((r) => r[6] === 1).length / leadRows.length * 100).toFixed(1);
+    console.log(`Lead conversion base rate: ${convRate}%  (${leadRows.length} leads)`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); }).finally(() => prisma.$disconnect());

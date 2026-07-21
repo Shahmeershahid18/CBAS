@@ -61,6 +61,12 @@ async function main() {
         await prisma.activity.deleteMany({ where: { contactId: { in: oldIds } } });
         await prisma.contact.deleteMany({ where: { id: { in: oldIds } } });
     }
+    const oldLeads = await prisma.lead.findMany({ where: { workspaceId, email: { endsWith: "@ai-seed.demo" } }, select: { id: true } });
+    const oldLeadIds = oldLeads.map((l) => l.id);
+    if (oldLeadIds.length) {
+        await prisma.activity.deleteMany({ where: { leadId: { in: oldLeadIds } } });
+        await prisma.lead.deleteMany({ where: { id: { in: oldLeadIds } } });
+    }
     await prisma.product.deleteMany({ where: { workspaceId } });
 
     // --- Products ----------------------------------------------------------
@@ -160,6 +166,53 @@ async function main() {
     }
     for (let i = 0; i < actRows.length; i += 1000) await prisma.activity.createMany({ data: actRows.slice(i, i + 1000) });
     console.log(`  ${actRows.length} activities`);
+
+    // --- Leads with latent CONVERSION signal (lead-scoring model) -----------
+    // Source, service, quotation and engagement drive a latent conversion
+    // propensity, so an app-native model can learn a real Hot/Warm/Cold spread.
+    const LEAD_SOURCES: Record<string, number> = {
+        "Referral": 0.75, "Website": 0.6, "API": 0.5, "Social Media": 0.4,
+        "Trade Show": 0.3, "Cold Call": 0.2,
+    };
+    const SERVICES = Object.values(CATEGORIES).flat();
+    const N_LEADS = 450;
+    const leadRows: any[] = [];
+    const leadProfiles: { id: string; p: number }[] = [];
+    for (let i = 0; i < N_LEADS; i++) {
+        const id = randomUUID();
+        const source = pick(Object.keys(LEAD_SOURCES));
+        const service = pick(SERVICES);
+        const quotation = 500 + rand(30000);
+        // Latent propensity: warm source + higher quote value + noise.
+        const z = -1.4 + (LEAD_SOURCES[source] - 0.4) * 3 + (quotation / 30000) * 1.2 + (Math.random() - 0.5);
+        const p = 1 / (1 + Math.exp(-z));
+        const converted = Math.random() < p;
+        const status = converted ? "CONVERTED"
+            : pick(["NEW", "NEW", "CONTACTED", "CONTACTED", "QUALIFIED"]);
+        leadRows.push({
+            id, firstName: pick(FIRST), lastName: pick(LAST),
+            email: `${id.slice(0, 8)}@ai-seed.demo`,
+            phone: Math.random() < 0.85 ? `+1${200 + rand(799)}${1000000 + rand(8999999)}` : null,
+            source, service, quotation, status,
+            workspaceId, ownerId: owner.id, createdAt: daysAgo(rand(400)),
+        });
+        leadProfiles.push({ id, p });
+    }
+    for (let i = 0; i < leadRows.length; i += 500) await prisma.lead.createMany({ data: leadRows.slice(i, i + 500) });
+
+    // Engaged leads (higher propensity) accumulate more activities.
+    const leadActs: any[] = [];
+    for (const { id: leadId, p } of leadProfiles) {
+        const nAct = poisson(p * 4);
+        for (let a = 0; a < nAct; a++) {
+            leadActs.push({
+                id: randomUUID(), type: pick(["CALL", "EMAIL", "MEETING", "NOTE"]),
+                notes: "Follow-up logged.", leadId, userId: owner.id, workspaceId, createdAt: daysAgo(rand(120)),
+            });
+        }
+    }
+    for (let i = 0; i < leadActs.length; i += 1000) await prisma.activity.createMany({ data: leadActs.slice(i, i + 1000) });
+    console.log(`  ${leadRows.length} leads (${leadRows.filter((l) => l.status === "CONVERTED").length} converted), ${leadActs.length} lead activities`);
 
     console.log("\nApp-native AI dataset seeded. Next: export + train (scripts/export-*.ts, training.*_crm).");
 }

@@ -92,6 +92,21 @@ export function scoreLeadRemote(features: LeadScoringFeatures): Promise<LeadScor
     return post<LeadScoreResult>("/score-lead", features);
 }
 
+// CRM-native lead scoring — features from the app's own leads (used by the app;
+// scoreLeadRemote above uses the Kaggle X-Education benchmark model).
+export interface CrmLeadFeatures {
+    source?: string;
+    service?: string;
+    quotation?: number;
+    num_activities?: number;
+    has_email?: number;
+    has_phone?: number;
+}
+
+export function scoreLeadCrmRemote(features: CrmLeadFeatures): Promise<LeadScoreResult> {
+    return post<LeadScoreResult>("/score-lead-crm", features);
+}
+
 // --- Churn prediction ------------------------------------------------------
 
 // Feature payload accepted by the churn model. All optional — the model imputes

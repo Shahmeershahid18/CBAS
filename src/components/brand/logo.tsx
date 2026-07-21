@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 interface LogoProps {
     className?: string;
@@ -25,15 +26,15 @@ export function Logo({ className, size = "md", showText = false }: LogoProps) {
             <div className={cn("relative flex items-center justify-center shrink-0 overflow-hidden", sizeMap[size])}>
                 {!imgError ? (
                     <>
-                        <img 
-                            src="/logo.png" 
-                            alt="Emblem Light" 
+                        <img
+                            src={withBasePath("/logo.png")}
+                            alt="Emblem Light"
                             className="w-full h-full object-contain drop-shadow-sm dark:hidden block"
                             onError={() => setImgError(true)}
                         />
-                        <img 
-                            src="/logo-dark.png" 
-                            alt="Emblem Dark" 
+                        <img
+                            src={withBasePath("/logo-dark.png")}
+                            alt="Emblem Dark"
                             className="w-full h-full object-contain drop-shadow-sm hidden dark:block"
                             onError={(e) => {
                                 // If they haven't uploaded the dark logo yet, silently fall back to the light one rather than breaking

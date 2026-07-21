@@ -30,7 +30,6 @@ export function LandingNav({ onOpenModal }: LandingNavProps) {
     const links = [
         ["Features", "/features"],
         ["Pricing", "/pricing"],
-        ["App", "/download"],
         ["Reviews", "/#testimonials"],
         ["Contact", "/#contact"],
     ];
@@ -108,13 +107,6 @@ export function LandingNav({ onOpenModal }: LandingNavProps) {
                     ))}
 
                     <div className="pt-8 flex flex-col gap-3">
-                        <Link
-                            href="/download"
-                            onClick={() => setMenuOpen(false)}
-                            className="w-full flex items-center justify-center gap-2 py-4 bg-muted border border-border text-foreground font-bold text-base rounded-2xl shadow-sm hover:bg-muted/80 active:scale-95 transition-all"
-                        >
-                            Get the App <ArrowRight className="w-5 h-5 ml-1" />
-                        </Link>
                         <button
                             onClick={() => { setMenuOpen(false); onOpenModal("FREE"); }}
                             className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground font-bold text-base rounded-2xl shadow-lg shadow-primary/20 hover:bg-primary/90 active:scale-95 transition-all"

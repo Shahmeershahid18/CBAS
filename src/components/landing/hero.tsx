@@ -1,21 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { ArrowRight, Star } from "lucide-react";
 import { ActionStreamPreview } from "./action-stream";
-import { generateQR } from "@/lib/qr-generator";
 
 interface HeroProps {
     onOpenModal: (plan: string) => void;
 }
 
 export function Hero({ onOpenModal }: HeroProps) {
-    const [qrUrl, setQrUrl] = useState<string>("");
-
-    useEffect(() => {
-        generateQR("https://CBAS.com/mobile_app/CBAS.apk").then(setQrUrl);
-    }, []);
-
     return (
         <section className="relative pt-24 pb-12 md:pt-32 md:pb-16 overflow-hidden">
             <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -66,21 +58,6 @@ export function Hero({ onOpenModal }: HeroProps) {
                                         {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />)}
                                     </div>
                                     <span className="text-[11px] md:text-xs text-muted-foreground">Trusted by <strong className="text-foreground">5,000+</strong> revenue teams</span>
-                                </div>
-                            </div>
-
-                            {/* Direct Scan-to-Install Bridge */}
-                            <div className="hidden lg:flex items-center gap-4 pl-6 border-l border-border/60 group">
-                                <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center border border-border/50 p-1.5 transition-transform group-hover:scale-110 shadow-sm cursor-help overflow-hidden">
-                                    {qrUrl ? (
-                                        <img src={qrUrl} alt="Download App QR" className="w-full h-full object-contain" />
-                                    ) : (
-                                        <div className="w-full h-full bg-muted animate-pulse" />
-                                    )}
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground whitespace-nowrap mb-0.5">Live & Scannable</p>
-                                    <p className="text-[8px] font-bold text-primary uppercase">v1.2.0 Native App</p>
                                 </div>
                             </div>
                         </div>

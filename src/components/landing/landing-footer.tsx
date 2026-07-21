@@ -23,7 +23,6 @@ export function LandingFooter() {
                             {[
                                 ["Features", "/features"],
                                 ["Pricing", "/pricing"],
-                                ["Mobile App", "/download"],
                                 ["Workflow Engine", "/features/workflow"],
                                 ["API Docs", "/docs"]
                             ].map(([l,h]) => (

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Send, Mail, Globe, Shield, CheckCircle2 } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { toast } from "sonner";
+import { withBasePath } from "@/lib/base-path";
 
 export function ContactForm() {
     const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
@@ -14,7 +15,7 @@ export function ContactForm() {
     const handleContact = async (e: React.FormEvent) => {
         e.preventDefault(); setFormSending(true);
         try {
-            const res = await fetch("/api/contact", {
+            const res = await fetch(withBasePath("/api/contact"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ...form, captchaToken: contactCaptcha }),

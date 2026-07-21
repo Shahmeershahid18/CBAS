@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
+import { withBasePath } from "@/lib/base-path";
 
 interface Workspace {
     id: string;
@@ -54,7 +55,7 @@ export function OrganizationHub() {
     const fetchOrgStats = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch("/api/organization/stats");
+            const res = await fetch(withBasePath("/api/organization/stats"));
             const data = await res.json();
             if (res.ok) {
                 setOrgData(data);
@@ -74,7 +75,7 @@ export function OrganizationHub() {
         try {
             const res = await switchWorkspace(workspaceId);
             if (res.success) {
-                window.location.href = "/dashboard"; 
+                window.location.href = withBasePath("/dashboard"); 
             } else {
                 toast.error(res.error || "Failed to switch.");
             }
@@ -91,7 +92,7 @@ export function OrganizationHub() {
 
         setIsActioning(true);
         try {
-            const res = await fetch("/api/organization/provision", {
+            const res = await fetch(withBasePath("/api/organization/provision"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ workspaceName: newWorkspaceName })
@@ -118,7 +119,7 @@ export function OrganizationHub() {
 
         setIsActioning(true);
         try {
-            const res = await fetch("/api/organization/terminate", {
+            const res = await fetch(withBasePath("/api/organization/terminate"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ confirmation: terminateInput })
@@ -128,7 +129,7 @@ export function OrganizationHub() {
             if (res.ok && data.success) {
                 toast.success("Organization Eradicated. You will now be signed out.");
                 setTimeout(() => {
-                    signOut({ callbackUrl: `${window.location.origin}/auth/signin` });
+                    signOut({ callbackUrl: `${window.location.origin}${withBasePath("/auth/signin")}` });
                 }, 2000);
             } else {
                 toast.error(data.error || "Termination failed.");

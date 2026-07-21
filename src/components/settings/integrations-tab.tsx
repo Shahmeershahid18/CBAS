@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Puzzle, MessageSquare, Fingerprint, Loader2, CheckCircle2, AlertTriangle, Mail, Send, Search } from "lucide-react";
 import { saveIntegrationSettings, testMetaConnection, testSmtpConnection } from "@/lib/actions/integrations";
 import { useRouter } from "next/navigation";
+import { BASE_PATH } from "@/lib/base-path";
 
 export function IntegrationsTab({ initialIntegrations }: { initialIntegrations: any[] }) {
     const defaultMeta = initialIntegrations.find(i => i.provider === "META") || { isActive: false, webhookSecret: "", apiKey: "" };
@@ -166,7 +167,8 @@ export function IntegrationsTab({ initialIntegrations }: { initialIntegrations: 
         setLoading(false);
     };
 
-    const originUrl = typeof window !== 'undefined' ? window.location.origin : 'https://digixcrm.com';
+    // Include the base path so webhook URLs shown to users resolve under /cbas.
+    const originUrl = (typeof window !== 'undefined' ? window.location.origin : 'https://digixcrm.com') + BASE_PATH;
 
     return (
         <Card className="shadow-sm border-border/60 bg-card/60 backdrop-blur-sm">

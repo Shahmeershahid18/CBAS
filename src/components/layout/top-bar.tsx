@@ -23,6 +23,7 @@ import { GlobalSearch } from "./global-search";
 import { NotificationCenter } from "./notification-center";
 import { Logo } from "@/components/brand/logo";
 import { Sidebar } from "./sidebar";
+import { withBasePath } from "@/lib/base-path";
 
 export function TopBar({ 
     user,
@@ -171,7 +172,7 @@ export function TopBar({
                         
                         <DropdownMenuItem
                             className="gap-3 cursor-pointer py-2.5 px-3 text-destructive focus:bg-destructive/10 focus:text-destructive font-bold rounded-lg mt-1"
-                            onClick={() => signOut({ callbackUrl: "/auth/signin" })}
+                            onClick={() => signOut({ callbackUrl: withBasePath("/auth/signin") })}
                         >
                             <LogOut className="w-4 h-4" />
                             <span>Sign out Space</span>

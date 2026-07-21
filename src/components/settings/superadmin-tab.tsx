@@ -28,6 +28,7 @@ interface Account {
 }
 
 import { provisionDemoAccount } from "@/lib/actions/demo-provision";
+import { withBasePath } from "@/lib/base-path";
 
 export function SuperAdminTab() {
     const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +69,7 @@ export function SuperAdminTab() {
 
     const fetchAdminData = async () => {
         try {
-            const res = await fetch("/api/admin/workspaces");
+            const res = await fetch(withBasePath("/api/admin/workspaces"));
             const data = await res.json();
             if (res.ok && data.success) {
                 setAccounts(data.accounts);
@@ -90,7 +91,7 @@ export function SuperAdminTab() {
     const executePlanChange = async () => {
         setIsActioning(true);
         try {
-            const res = await fetch("/api/admin/workspaces", {
+            const res = await fetch(withBasePath("/api/admin/workspaces"), {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "CHANGE_PLAN", accountId: modalConfig.accountId, payload: { newPlan: modalConfig.pendingPlan } })
@@ -117,7 +118,7 @@ export function SuperAdminTab() {
 
         setIsActioning(true);
         try {
-            const res = await fetch("/api/admin/workspaces", {
+            const res = await fetch(withBasePath("/api/admin/workspaces"), {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "DELETE", accountId: modalConfig.accountId })
@@ -196,7 +197,7 @@ export function SuperAdminTab() {
                                                         e.stopPropagation();
                                                         setIsLoading(true);
                                                         try {
-                                                            const res = await fetch("/api/admin/workspaces", {
+                                                            const res = await fetch(withBasePath("/api/admin/workspaces"), {
                                                                 method: "PATCH",
                                                                 headers: { "Content-Type": "application/json" },
                                                                 body: JSON.stringify({ action: "TOGGLE_PAYMENT_SETUP", accountId: acc.id })
@@ -240,7 +241,7 @@ export function SuperAdminTab() {
                                                         onClick={async () => {
                                                             setIsLoading(true);
                                                             try {
-                                                                const res = await fetch("/api/admin/workspaces", {
+                                                                const res = await fetch(withBasePath("/api/admin/workspaces"), {
                                                                     method: "PATCH",
                                                                     headers: { "Content-Type": "application/json" },
                                                                     body: JSON.stringify({ action: "TOGGLE_STATUS", accountId: acc.id })

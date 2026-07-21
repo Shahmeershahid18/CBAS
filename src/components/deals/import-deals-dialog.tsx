@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { importBulkDeals } from "@/lib/actions/deals";
 import Papa from "papaparse";
+import { withBasePath } from "@/lib/base-path";
 
 export function ImportDealsDialog() {
     const [open, setOpen] = useState(false);
@@ -134,7 +135,7 @@ export function ImportDealsDialog() {
                             </label>
 
                              <div className="flex justify-between items-center text-sm">
-                                <a href="/Deal_Import_Template.csv" download className="text-primary hover:underline font-medium">
+                                <a href={withBasePath("/Deal_Import_Template.csv")} download className="text-primary hover:underline font-medium">
                                     Download CSV Template
                                 </a>
                                 {previewCount !== null && !error && (

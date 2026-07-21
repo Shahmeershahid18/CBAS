@@ -17,6 +17,7 @@ import { getUnreadNotifications, markAsRead } from "@/lib/actions/notifications"
 import Link from "next/link";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { withBasePath } from "@/lib/base-path";
 
 export function NotificationCenter() {
     const router = useRouter();
@@ -42,7 +43,7 @@ export function NotificationCenter() {
         fetchNotifications();
         
         // Connect to native Server-Sent Event stream for instant UI updates
-        const eventSource = new EventSource('/api/notifications/stream');
+        const eventSource = new EventSource(withBasePath('/api/notifications/stream'));
         
         eventSource.onmessage = (event) => {
             try {
@@ -58,7 +59,7 @@ export function NotificationCenter() {
                         description: data.message,
                         action: data.link ? {
                             label: "View",
-                            onClick: () => window.location.href = data.link
+                            onClick: () => window.location.href = withBasePath(data.link)
                         } : undefined
                     });
 

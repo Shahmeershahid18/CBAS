@@ -31,7 +31,7 @@ function RegisterContent() {
         }
 
         setIsLoading(true);
-        fetch(`/api/auth/registration-token?token=${token}`)
+        fetch(withBasePath(`/api/auth/registration-token?token=${token}`))
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
@@ -58,7 +58,7 @@ function RegisterContent() {
 
         try {
             // Register via API
-            const res = await fetch("/api/auth/register", {
+            const res = await fetch(withBasePath("/api/auth/register"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ...form, plan, token })
@@ -230,6 +230,7 @@ function RegisterContent() {
 }
 
 import { Suspense } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 export default function RegisterPage() {
     return (

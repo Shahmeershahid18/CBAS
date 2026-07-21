@@ -1,0 +1,61 @@
+name: Deploy CBAS to VPS
+
+# Deploys to the VPS on every push to main (or run manually from the Actions tab).
+# Requires these repository secrets (Settings -> Secrets and variables -> Actions):
+#   VPS_HOST      - server IP or hostname (e.g. 203.0.113.10)
+#   VPS_USER      - SSH user (must have passwordless sudo for `supervisorctl`)
+#   VPS_SSH_KEY   - the PRIVATE SSH key (contents) authorized on the VPS
+#   VPS_PORT      - SSH port (optional; defaults to 22)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-cbas
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+            APP_DIR=/var/www/cbas
+            cd "$APP_DIR"
+
+            echo "==> Pulling latest code"
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "==> Web app: install, generate, migrate, build"
+            npm ci
+            npx prisma generate
+            # This project syncs schema with db push. If you switch to migrations,
+            # replace the next line with:  npx prisma migrate deploy
+            npx prisma db push
+            npm run build   # reads NEXT_PUBLIC_BASE_PATH=/cbas from .env
+
+            echo "==> AI engine: venv + deps"
+            cd "$APP_DIR/ai-engine"
+            if [ ! -d .venv ]; then python3 -m venv .venv; fi
+            ./.venv/bin/pip install -q --upgrade pip
+            ./.venv/bin/pip install -q -r requirements.txt
+            # Ensure trained models exist (synthetic fallback if datasets absent)
+            if [ ! -f artifacts/lead_scoring.joblib ]; then
+              ./.venv/bin/python -m scripts.train_all || true
+            fi
+            cd "$APP_DIR"
+
+            echo "==> Restarting services"
+            sudo supervisorctl restart cbas-web cbas-ai
+            echo "==> Done."

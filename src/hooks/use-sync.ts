@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { withBasePath } from "@/lib/base-path";
 
 /**
  * useSync Hook
@@ -18,7 +19,7 @@ export function useSync(intervalMs: number = 10000) {
     useEffect(() => {
         async function checkSync() {
             try {
-                const res = await fetch("/api/workspace/sync");
+                const res = await fetch(withBasePath("/api/workspace/sync"));
                 if (!res.ok) return;
 
                 const data = await res.json();

@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { getEntitlements, PlanTier } from "@/lib/entitlements";
 import { useRouter } from "next/navigation";
 import { useConfirm } from "@/components/providers/confirm-dialog-provider";
+import { withBasePath } from "@/lib/base-path";
 
 interface CustomRole {
     id: string;
@@ -146,7 +147,7 @@ export function CustomRolesMatrix({ activeWorkspace, initialRoles }: { activeWor
         setIsLoading(true);
 
         try {
-            const res = await fetch("/api/roles", {
+            const res = await fetch(withBasePath("/api/roles"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -178,7 +179,7 @@ export function CustomRolesMatrix({ activeWorkspace, initialRoles }: { activeWor
         if (!isConfirmed) return;
         
         try {
-            const res = await fetch(`/api/roles?roleId=${roleId}&workspaceId=${activeWorkspace.id}`, { method: "DELETE" });
+            const res = await fetch(withBasePath(`/api/roles?roleId=${roleId}&workspaceId=${activeWorkspace.id}`), { method: "DELETE" });
             if (!res.ok) throw new Error(await res.text());
             router.refresh();
         } catch (e: any) {

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Mail, ArrowRight, ArrowLeft, KeySquare } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { requestPasswordReset } from "@/lib/actions/users";
+import { withBasePath } from "@/lib/base-path";
 
 export default function ForgotPasswordPage() {
     const router = useRouter();
@@ -93,7 +94,7 @@ export default function ForgotPasswordPage() {
                     )}
 
                     <div className="mt-6 text-center">
-                        <a href="/auth/signin" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                        <a href={withBasePath("/auth/signin")} className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
                             <ArrowLeft className="w-4 h-4 mr-2" />
                             Return to Login
                         </a>

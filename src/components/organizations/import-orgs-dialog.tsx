@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { importBulkOrganizations } from "@/lib/actions/organizations";
 import Papa from "papaparse";
+import { withBasePath } from "@/lib/base-path";
 
 export function ImportOrgsDialog() {
     const [open, setOpen] = useState(false);
@@ -134,7 +135,7 @@ export function ImportOrgsDialog() {
                             </label>
 
                             <div className="flex justify-between items-center text-sm">
-                                <a href="/Org_Import_Template.csv" download className="text-primary hover:underline font-medium">
+                                <a href={withBasePath("/Org_Import_Template.csv")} download className="text-primary hover:underline font-medium">
                                     Download CSV Template
                                 </a>
                                 {previewCount !== null && !error && (

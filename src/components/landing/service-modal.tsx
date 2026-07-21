@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Mail, Rocket, ArrowRight, CheckCircle2, X } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { toast } from "sonner";
+import { withBasePath } from "@/lib/base-path";
 
 interface ServiceModalProps {
     isOpen: boolean;
@@ -22,7 +23,7 @@ export function ServiceModal({ isOpen, onClose, selectedPlan }: ServiceModalProp
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault(); setIsSending(true);
         try {
-            const res = await fetch("/api/onboarding/send-link", {
+            const res = await fetch(withBasePath("/api/onboarding/send-link"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: regEmail, plan: selectedPlan, captchaToken: regCaptcha }),

@@ -15,6 +15,7 @@ import {
 import { importBulkLeads } from "@/lib/actions/leads";
 import Papa from "papaparse";
 import { useRouter } from "next/navigation";
+import { withBasePath } from "@/lib/base-path";
 
 export function ImportLeadsDialog() {
     const [open, setOpen] = useState(false);
@@ -142,7 +143,7 @@ export function ImportLeadsDialog() {
                             </label>
 
                             <div className="flex justify-between items-center text-sm">
-                                <a href="/Lead_Import_Template.csv" download className="text-primary hover:underline font-medium">
+                                <a href={withBasePath("/Lead_Import_Template.csv")} download className="text-primary hover:underline font-medium">
                                     Download CSV Template
                                 </a>
                                 {previewCount !== null && !error && (

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, ArrowRight, ShieldCheck, Activity, BarChart3, Users, Power, LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { ServiceModal } from "@/components/landing/service-modal";
+import { withBasePath } from "@/lib/base-path";
 
 export default function SignInPage() {
     const router = useRouter();
@@ -177,7 +178,7 @@ export default function SignInPage() {
                                         <div className="space-y-1.5">
                                             <div className="flex items-center justify-between ml-1">
                                                 <label className="text-sm font-semibold tracking-tight text-foreground">Password</label>
-                                                <a href="/auth/forgot-password" className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
+                                                <a href={withBasePath("/auth/forgot-password")} className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
                                                     Forgot password?
                                                 </a>
                                             </div>

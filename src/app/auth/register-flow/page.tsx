@@ -99,7 +99,7 @@ function RegistrationFlowContent() {
                 password: form.password
             };
 
-            const res = await fetch("/api/onboarding/complete", {
+            const res = await fetch(withBasePath("/api/onboarding/complete"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
@@ -348,6 +348,7 @@ function RegistrationFlowContent() {
 }
 
 import { Suspense } from "react";
+import { withBasePath } from "@/lib/base-path";
 
 export default function RegistrationFlowPage() {
     return (

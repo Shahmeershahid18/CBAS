@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
+import { withBasePath } from "@/lib/base-path";
 
 interface SendMessageDialogProps {
     leadId: string;
@@ -34,7 +35,7 @@ export function SendMessageDialog({ leadId, phone, firstName, compact = false }:
         setStatus("idle");
 
         try {
-            const res = await fetch("/api/messaging/whatsapp", {
+            const res = await fetch(withBasePath("/api/messaging/whatsapp"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ leadId, phone, message }),

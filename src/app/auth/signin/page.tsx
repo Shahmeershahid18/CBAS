@@ -128,16 +128,13 @@ export default function SignInPage() {
 
                 <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-8 duration-700">
                     <div className="mb-8 text-left">
-                        <div className="relative inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-6 shadow-xl bg-gradient-to-br from-[#0d1b4b] to-[#1a3a8f] overflow-hidden group">
-                            <div className="absolute inset-0 bg-white/10 opacity-20 mix-blend-overlay group-hover:opacity-40 transition-opacity"></div>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className="w-8 h-8 text-white relative z-10 drop-shadow-md group-hover:scale-110 transition-transform duration-500">
-                                <rect width="32" height="32" rx="7" fill="transparent"/>
-                                <rect x="5" y="20" width="5" height="7" rx="1.5" fill="white" opacity="0.5"/>
-                                <rect x="13" y="15" width="5" height="12" rx="1.5" fill="white" opacity="0.75"/>
-                                <rect x="21" y="9" width="5" height="18" rx="1.5" fill="white"/>
-                                <polyline points="23.5,4 26,8.5 21,8.5" fill="white"/>
-                            </svg>
-                            <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-white/50 to-transparent"></div>
+                        <div className="relative inline-flex items-center justify-center w-16 h-16 mb-6 group">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={withBasePath("/icon.png")}
+                                alt="CBAS"
+                                className="w-full h-full object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-500"
+                            />
                         </div>
                         <h1 className="text-3xl sm:text-4xl font-black text-foreground tracking-tight mb-2 leading-tight">
                             Welcome Back

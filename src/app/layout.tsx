@@ -67,15 +67,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  icons: {
-    icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "any" },
-    ],
-    apple: [
-      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
-    ],
-  },
+  // Icons are provided by the app-directory file convention
+  // (src/app/favicon.ico, icon.png, apple-icon.png). Next.js generates the
+  // correct <link> tags — including the /cbas base path — automatically.
 };
 
 const jsonLd = {
@@ -93,7 +87,7 @@ const jsonLd = {
       "@type": "Organization",
       "name": "CBAS",
       "url": "https://digixworkspace.com",
-      "logo": "https://digixworkspace.com/icon.svg",
+      "logo": "https://digixworkspace.com/cbas/icon.png",
       "sameAs": [
         "https://twitter.com/cbas",
         "https://linkedin.com/company/cbas"

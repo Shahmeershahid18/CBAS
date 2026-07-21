@@ -1,11 +1,17 @@
 name: Deploy CBAS to VPS
 
 # Deploys to the VPS on every push to main (or run manually from the Actions tab).
-# Requires these repository secrets (Settings -> Secrets and variables -> Actions):
-#   VPS_HOST      - server IP or hostname (e.g. 203.0.113.10)
-#   VPS_USER      - SSH user (must have passwordless sudo for `supervisorctl`)
-#   VPS_SSH_KEY   - the PRIVATE SSH key (contents) authorized on the VPS
-#   VPS_PORT      - SSH port (optional; defaults to 22)
+# The workflow CLONES the repo on the first run and PULLS on every run after, so
+# you never have to clone by hand.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   VPS_HOST    - server IP or hostname
+#   VPS_USER    - SSH user (needs write access to /var/www and passwordless
+#                 `sudo supervisorctl`; root satisfies both)
+#   VPS_SSH_KEY - the PRIVATE SSH key authorized on the VPS
+#   VPS_PORT    - SSH port (optional, default 22)
+#   REPO_PAT    - a GitHub token with `repo` read scope — ONLY needed if this
+#                 repository is PRIVATE. Leave unset for a public repo.
 
 on:
   push:
@@ -22,40 +28,67 @@ jobs:
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
+          REPO_PAT: ${{ secrets.REPO_PAT }}
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_PORT || 22 }}
+          envs: REPO_URL,REPO_PAT
           command_timeout: 30m
           script: |
             set -euo pipefail
             APP_DIR=/var/www/cbas
-            cd "$APP_DIR"
 
-            echo "==> Pulling latest code"
-            git fetch --all
-            git reset --hard origin/main
+            # Authenticated URL for private repos (REPO_PAT); plain URL for public.
+            CLONE_URL="$REPO_URL"
+            if [ -n "${REPO_PAT:-}" ]; then
+              CLONE_URL="https://x-access-token:${REPO_PAT}@${REPO_URL#https://}"
+            fi
+            git config --global --add safe.directory "$APP_DIR" || true
 
-            echo "==> Web app: install, generate, migrate, build"
+            # --- Clone on first deploy, pull afterwards --------------------------
+            if [ -d "$APP_DIR/.git" ]; then
+              echo "==> Updating existing checkout"
+              cd "$APP_DIR"
+              git remote set-url origin "$CLONE_URL"
+              git fetch --all --prune
+              git reset --hard origin/main
+            else
+              echo "==> First deploy: cloning into $APP_DIR"
+              mkdir -p "$APP_DIR"
+              git clone "$CLONE_URL" "$APP_DIR"
+              cd "$APP_DIR"
+            fi
+
+            # --- .env must exist (holds secrets; never committed) ----------------
+            if [ ! -f .env ]; then
+              echo "!! $APP_DIR/.env is missing. Create it once (see deploy/README.md),"
+              echo "   set NEXT_PUBLIC_BASE_PATH=\"/cbas\" + NEXTAUTH_URL + DB, then re-run."
+              exit 1
+            fi
+
+            # --- Web app ---------------------------------------------------------
+            echo "==> Web: install, generate, sync schema, build"
             npm ci
             npx prisma generate
-            # This project syncs schema with db push. If you switch to migrations,
-            # replace the next line with:  npx prisma migrate deploy
             npx prisma db push
-            npm run build   # reads NEXT_PUBLIC_BASE_PATH=/cbas from .env
+            npm run build   # reads NEXT_PUBLIC_BASE_PATH from .env
 
+            # --- AI engine -------------------------------------------------------
             echo "==> AI engine: venv + deps"
             cd "$APP_DIR/ai-engine"
             if [ ! -d .venv ]; then python3 -m venv .venv; fi
             ./.venv/bin/pip install -q --upgrade pip
             ./.venv/bin/pip install -q -r requirements.txt
-            # Ensure trained models exist (synthetic fallback if datasets absent)
             if [ ! -f artifacts/lead_scoring.joblib ]; then
               ./.venv/bin/python -m scripts.train_all || true
             fi
             cd "$APP_DIR"
 
+            # --- Restart services ------------------------------------------------
             echo "==> Restarting services"
             sudo supervisorctl restart cbas-web cbas-ai
             echo "==> Done."

@@ -18,9 +18,15 @@ The app is served under the **sub-path** `/cbas`, so Next.js is built with
 | Secret | Value |
 |--------|-------|
 | `VPS_HOST` | server IP / hostname |
-| `VPS_USER` | SSH user (needs passwordless `sudo supervisorctl`) |
+| `VPS_USER` | SSH user — needs **write to `/var/www`** and passwordless `sudo supervisorctl` (root satisfies both) |
 | `VPS_SSH_KEY` | the **private** key whose public key is in the server's `~/.ssh/authorized_keys` |
 | `VPS_PORT` | SSH port (optional, default 22) |
+| `REPO_PAT` | GitHub token with `repo` read scope — **only if the repo is PRIVATE**. Leave unset for a public repo. |
+
+The workflow now **clones the repo on the first run and pulls after that** — you no
+longer clone by hand. On the very first run it will clone, then stop with a
+message if `/var/www/cbas/.env` is missing; create `.env` (and run the one-time
+`setup-vps.sh` for system packages + Supervisor/Nginx), then re-run the workflow.
 
 Give the deploy user passwordless sudo for just supervisor:
 ```bash
